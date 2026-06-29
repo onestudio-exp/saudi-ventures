@@ -1,0 +1,16 @@
+api:
+    docs: /docs
+    graphql: /graphql
+    rest: /api
+auth:
+    provider: supabase
+database:
+    driver: pgx
+    url: ${DATABASE_URL}
+frontend:
+    dir: web
+module: github.com/saudi-ventures/saudi-ventures
+name: saudi-ventures
+plugins:
+    - github.com/togo-framework/auth
+    - github.com/togo-framework/auth-dev
