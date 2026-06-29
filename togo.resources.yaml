@@ -1,0 +1,144 @@
+# Managed by togo. Source of truth for generated registries.
+resources:
+    - name: Agent
+      table: agents
+      fields:
+        - name: name
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: slug
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: module
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: tagline
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: description
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: image_url
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: cta_text
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: cta_subtext
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: sort_order
+          go: int64
+          gql: Int
+          pg: bigint
+          "null": true
+        - name: active
+          go: bool
+          gql: Boolean!
+          pg: boolean
+          "null": false
+      controller: true
+    - name: Entity
+      table: entities
+      fields:
+        - name: name
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: slug
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: kind
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: description
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: logo_url
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: website
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: sector
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: headquarters
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: founded_year
+          go: int64
+          gql: Int
+          pg: bigint
+          "null": true
+        - name: claimed
+          go: bool
+          gql: Boolean!
+          pg: boolean
+          "null": false
+      controller: true
+    - name: Lead
+      table: leads
+      fields:
+        - name: email
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: whatsapp
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: message
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: source_type
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: source_page
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: source_agent
+          go: string
+          gql: String
+          pg: text
+          "null": true
+      controller: true

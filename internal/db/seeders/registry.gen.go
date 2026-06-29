@@ -9,5 +9,14 @@ import (
 
 // SeedAll runs every resource seeder. Regenerated from togo.resources.yaml.
 func SeedAll(ctx context.Context, a *app.App) error {
+	if err := SeedAgent(ctx, a); err != nil {
+		return err
+	}
+	if err := SeedEntity(ctx, a); err != nil {
+		return err
+	}
+	if err := SeedLead(ctx, a); err != nil {
+		return err
+	}
 	return nil
 }

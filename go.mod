@@ -18,10 +18,13 @@ require (
 	github.com/togo-framework/auth-dev v0.1.0
 	github.com/togo-framework/cache v0.3.0
 	github.com/togo-framework/db-postgres v0.1.0
+	github.com/togo-framework/faker v0.1.0
 	github.com/togo-framework/i18n v0.2.0
+	github.com/togo-framework/orm v0.1.0
 	github.com/togo-framework/queue v0.2.0
 	github.com/togo-framework/realtime v0.2.0
 	github.com/togo-framework/storage v0.2.0
+	github.com/togo-framework/validation v0.1.0
 	github.com/vektah/gqlparser/v2 v2.5.22
 )
 
@@ -45,7 +48,6 @@ require (
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
-	github.com/togo-framework/orm v0.1.0 // indirect
 	github.com/urfave/cli/v2 v2.27.5 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	golang.org/x/crypto v0.28.0 // indirect
