@@ -1,53 +1,69 @@
-# Saudi Venture Economy Intelligence
+# Saudi Ventures Intelligence
 
-> AI-powered, real-time intelligence on the Saudi venture economy — ecosystem health, funding activity, investment momentum, and sector performance at a glance. Powered by Sentra's national-intelligence engine.
+> Public showcase & lead-generation platform for the Saudi startup ecosystem.
+> A standalone **ID8Media** product — independent of, and not coupled to, Sentra.
 
 A One Studio venture · [Hub page](https://onestudio-agent-hub.vercel.app/ventures/saudi-ventures)
+
+See [`PRD.md`](./PRD.md) for the full product spec.
 
 ---
 
 # Product Vision
 
-Become the intelligence layer for the Saudi venture ecosystem — providing a real-time view of the Saudi venture economy, investment activity, ecosystem health, and market momentum, powered by Sentra's national-intelligence engine.
+Become the most comprehensive, authoritative public view of the Saudi startup ecosystem — mapping entities, modules, and market activity — while measuring real demand through source-attributed lead capture.
 
 # Product Description
 
-Saudi Venture Economy Intelligence is a public, no-login "mini Sentra": an intelligence dashboard that provides a live view of the Saudi venture ecosystem. It showcases key economic indicators, funding activity, investment trends, ecosystem health, and market momentum through interactive intelligence cards and drill-down reports. The experience also serves as the marketing front door to the full Sentra platform through a "Try it now" call-to-action.
+Saudi Ventures Intelligence is a standalone public web platform that maps and presents the Saudi startup ecosystem. Outward-facing, it is a credibility showcase that positions ID8Media as the deepest, most up-to-date source on the Saudi market. Internally, it is a lightweight instrument for measuring demand: by capturing leads (email + WhatsApp) against specific features, modules, and Agent personas, the team learns which capabilities attract real interest and prioritizes the backlog accordingly.
+
+**Guiding principle:** ship a simple first version, measure interest, then invest.
 
 # Objectives
 
-* Showcase Sentra's intelligence capabilities with zero friction (no login).
-* Deliver a fast, shareable overview of the Saudi venture economy and ecosystem trends.
-* Highlight investment activity, funding momentum, and ecosystem health through real-time intelligence.
-* Remain fully feature-flag-controlled and bilingual (EN/AR with full RTL).
+* Present a polished, credible public view of the Saudi startup ecosystem.
+* Capture leads (email + WhatsApp) tied to specific features, sections, and personas.
+* Measure relative interest across features to guide backlog prioritization.
+* Establish ID8Media's positioning as the deepest, most up-to-date source on the Saudi market.
 
-# Scope
+# Scope (v0.1)
 
-**In scope:** read-only venture economy dashboard, ecosystem intelligence reports, curated seed dataset, DB-driven feature flag, bilingual EN/AR with full RTL UI, and a landing-page CTA.
+**In scope:** entity profile pages + "claim your profile" request, newsletter capture (store-only), module **Agent** personas with smart contextual lead CTAs, an admin settings page for Agent config, and a single source-attributed lead store.
+
+**Out of scope:** email/WhatsApp delivery integrations, end-user auth/permissions, automated profile editing, any Sentra dependency.
 
 # High-Level Features
 
-* Venture economy dashboard with ecosystem health, funding activity, investment momentum, startup formation, exit activity, and sector performance cards, plus sector and time-range filters.
-* Drill-down ecosystem reports with analyst summaries, key economic insights, and tracked market signals.
-* Bilingual EN/AR with full right-to-left support.
-* DB-driven on/off feature flag via the capability registry.
-* Marketing landing section plus a "Try it now" CTA into the demo.
+* **Entity profiles & "Claim your profile"** — every ecosystem org has a profile page with a claim-request action (stored request only; no accounts yet).
+* **Newsletter subscription** — email + WhatsApp capture to gauge demand (store-only, no delivery integration).
+* **Module Agents & smart lead CTAs** — up to ~17 specialized Agent personas (e.g. News Radar, List of Startups, Investment), each introducing its section and carrying a sticky contextual CTA that opens a low-friction lead form.
+* **Source-attributed lead store** — every lead records `source_type` (claim / newsletter / agent_cta), `source_page`, and `source_agent`.
+* **Agent settings page** — name, image, and CTA copy editable without engineering (copy may be AI-generated).
+
+# Data Model (MVP)
+
+Scaffolded via togo (`togo make:resource`):
+
+| Resource | Purpose |
+|---|---|
+| **Entity** | Ecosystem org profiles (startup / VC / accelerator / incubator) + claim flow |
+| **Agent**  | Per-module persona: name, image, self-description, configurable CTA |
+| **Lead**   | Unified, source-attributed lead record (claim / newsletter / agent_cta) |
 
 ---
 
 # Tech Stack & Development
 
 Built with [togo](https://github.com/togo-framework) — Go, the artisan way.
-API-first (GraphQL + REST/OpenAPI), Supabase auth, plugin-extensible, AI-native.
+API-first (GraphQL + REST/OpenAPI), plugin-extensible, AI-native.
 
 ## Quickstart
 
 ```bash
-cp .env.example .env          # configure DATABASE_URL + Supabase
-docker compose up -d          # Postgres / Supabase
-togo make:resource Post title:string body:text:nullable
+cp .env.example .env          # configure DATABASE_URL
+togo db:up                    # start local Postgres (docker)
 togo generate                 # sqlc + gqlgen + atlas + openapi
-togo migrate
+togo migrate                  # apply Atlas migrations
 togo serve                    # backend + frontend together
 ```
 
@@ -61,7 +77,6 @@ deps on first run). Use `togo serve --api-only` / `--web-only`, or `togo web`.
 
 - **API**: chi + Huma (REST/OpenAPI 3.1) + gqlgen (GraphQL)
 - **Data**: sqlc (typed queries) + Atlas (migrations) + pgx/Postgres
-- **Auth + Storage**: Supabase (`@supabase/ssr`) — client/server/middleware wired
 - **Frontend**: TanStack + Vite + Tailwind CSS v4 + shadcn-style `ui/`
   primitives (CVA + `cn()`), `next-themes` (dark mode), `sonner` toasts, lucide icons
 - **AI**: `.claude/` skills + agents + `.mcp.json` wired to the togo MCP server

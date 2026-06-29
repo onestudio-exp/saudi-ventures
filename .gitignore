@@ -10,3 +10,10 @@
 .DS_Store
 ._*
 .Trashes
+
+# Local SQLite dev databases
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+*.sqlite3
