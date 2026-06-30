@@ -81,7 +81,7 @@ export function Home() {
           <p className="reveal reveal-1 kicker mb-5">{tx("Saudi Venture Intelligence", "ذكاء ريادة الأعمال السعودية")}</p>
           <h1 className="font-display reveal reveal-2 mx-auto max-w-3xl text-[2.6rem] leading-[1.05] sm:text-6xl">
             {tx("The Saudi venture ecosystem, ", "منظومة ريادة الأعمال السعودية، ")}
-            <span className="italic text-primary">{tx("decoded weekly.", "مُحلّلة أسبوعيًا.")}</span>
+            <span className="text-primary">{tx("decoded weekly.", "مُحلّلة أسبوعيًا.")}</span>
           </h1>
           <p className="reveal reveal-3 mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
             {tx(

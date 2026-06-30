@@ -3,15 +3,32 @@
 @source "../node_modules/@togo-framework/ui/dist";
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ── Saudi Ventures brand ───────────────────────────────────────────────────
-   Override togo's crimson primary with Saudi green across every theme. Placed
-   after the @togo-framework/ui import so it wins at equal specificity. */
+/* ── Saudi Ventures Intelligence — design system ─────────────────────────────
+   Palette from the product design handoff: a near-black blue canvas (#0A0D13),
+   vivid emerald accent (#2FBE8F), and cool slate cards/borders. Placed after the
+   @togo-framework/ui import so it wins at equal specificity. All values are the
+   shadcn HSL-triplet form the tokens expect. */
 :root, .dark, [data-theme] {
-  --primary: 152 56% 30%;
-  --primary-foreground: 0 0% 100%;
-  --ring: 152 56% 30%;
-  --brand-primary: 152 56% 30%;
-  --brand-primary-glow: 152 56% 40%;
+  --background: 222 31% 6%;        /* #0A0D13 */
+  --foreground: 216 30% 94%;       /* #EAEEF4 */
+  --card: 216 29% 9%;              /* #10151D */
+  --card-foreground: 216 30% 94%;
+  --popover: 216 29% 9%;
+  --popover-foreground: 216 30% 94%;
+  --muted: 216 27% 10%;
+  --muted-foreground: 216 14% 60%; /* #8B95A6 */
+  --secondary: 216 26% 12%;
+  --secondary-foreground: 216 30% 94%;
+  --accent: 216 26% 12%;
+  --accent-foreground: 216 30% 94%;
+  --border: 216 27% 15%;           /* #1C2430 */
+  --input: 216 23% 18%;            /* #232B38 */
+
+  --primary: 160 60% 47%;          /* #2FBE8F */
+  --primary-foreground: 150 62% 5%; /* #04120C */
+  --ring: 160 60% 47%;
+  --brand-primary: 160 60% 47%;
+  --brand-primary-glow: 158 66% 63%; /* #5FE0AE */
 }
 
 /* ── Typography system ──────────────────────────────────────────────────────
@@ -19,7 +36,7 @@
    body. IBM Plex Mono = data/labels (the "intelligence terminal" signal). Plex
    Sans Arabic keeps RTL premium. Deliberately not Inter/Roboto/system. */
 :root {
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-body: "IBM Plex Sans", var(--tg-font), system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
 }
@@ -29,7 +46,6 @@ body { margin: 0; font-family: var(--font-body); }
 
 .font-display {
   font-family: var(--font-display);
-  font-optical-sizing: auto;
   letter-spacing: -0.02em;
   font-weight: 600;
 }
