@@ -15,6 +15,7 @@ export interface Entity {
   headquarters?: string | null;
   founded_year?: number | null;
   claimed: boolean;
+  metadata?: string | null; // full source record (JSON string) — all info
 }
 
 export interface Capability {

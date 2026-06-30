@@ -189,6 +189,11 @@ func main() {
 			if v := str(e, "logo_url"); v != "" {
 				fields["logo_url"] = v
 			}
+			// Store the full source record so the profile shows ALL info, not just
+			// the mapped columns.
+			if b, mErr := json.Marshal(e); mErr == nil {
+				fields["metadata"] = string(b)
+			}
 			if _, err := models.Entities(a).Create(ctx, fields); err != nil {
 				skip++
 				continue

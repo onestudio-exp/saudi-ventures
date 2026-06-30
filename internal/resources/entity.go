@@ -21,6 +21,7 @@ type EntityResponse struct {
 	Headquarters *string   `json:"headquarters"`
 	FoundedYear  *int64    `json:"founded_year"`
 	Claimed      bool      `json:"claimed"`
+	Metadata     string    `json:"metadata"` // full source record (jsonb) — all info from the directory
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -39,6 +40,7 @@ func TransformEntity(m db.Entity) EntityResponse {
 		Headquarters: m.Headquarters,
 		FoundedYear:  m.FoundedYear,
 		Claimed:      m.Claimed,
+		Metadata:     m.Metadata,
 		CreatedAt:    m.CreatedAt,
 		UpdatedAt:    m.UpdatedAt,
 	}

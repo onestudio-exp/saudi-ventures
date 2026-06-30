@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS entities (
     headquarters text,
     founded_year bigint,
     claimed boolean NOT NULL,
+    metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now()
 );

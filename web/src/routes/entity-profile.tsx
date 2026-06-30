@@ -101,6 +101,35 @@ export function EntityProfile() {
               <p className="mt-6 leading-relaxed text-muted-foreground">{entity.description}</p>
             )}
 
+            {/* Full details — every field from the source record (metadata jsonb). */}
+            {(() => {
+              let meta: Record<string, unknown> = {};
+              try {
+                meta = entity.metadata ? JSON.parse(entity.metadata) : {};
+              } catch {
+                meta = {};
+              }
+              const hide = new Set(["id", "name", "logo_url", "is_active", "is_hidden", "sort_order", "created_at", "updated_at", "description", "website"]);
+              const entries = Object.entries(meta).filter(
+                ([k, v]) => !hide.has(k) && v !== null && v !== "" && typeof v !== "object",
+              );
+              if (entries.length === 0) return null;
+              const label = (k: string) => k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+              return (
+                <section className="surface-card mt-8 rounded-2xl p-6">
+                  <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{tx("Details", "التفاصيل")}</h2>
+                  <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-1.5 sm:grid-cols-2">
+                    {entries.map(([k, v]) => (
+                      <div key={k} className="flex items-start justify-between gap-3 border-b border-border/50 py-1.5 text-sm">
+                        <dt className="text-muted-foreground">{label(k)}</dt>
+                        <dd className="text-end font-medium">{String(v)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              );
+            })()}
+
             {/* Claim your profile — stored Lead (source_type=claim) */}
             <section className="surface-card mt-10 rounded-2xl p-6">
               <h2 className="text-lg font-semibold">{tx("Is this your organization?", "هل هذه مؤسستك؟")}</h2>
