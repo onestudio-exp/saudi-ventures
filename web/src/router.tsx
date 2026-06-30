@@ -2,7 +2,9 @@ import { createRootRoute, createRoute, createRouter, lazyRouteComponent, Outlet,
 import { SentraLoading } from "@togo-framework/ui";
 import { Providers } from "./providers";
 import { sessionMe } from "./lib/auth";
-import { Welcome } from "./routes/welcome";
+import { Home } from "./routes/home";
+import { Entities } from "./routes/entities";
+import { EntityProfile } from "./routes/entity-profile";
 import { Login } from "./routes/login";
 import { Register } from "./routes/register";
 import { Reset } from "./routes/reset";
@@ -24,7 +26,9 @@ const redirectIfAuthed = async () => {
   if (await sessionMe()) throw redirect({ to: "/dashboard" });
 };
 
-const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: "/", component: Welcome });
+const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: "/", component: Home });
+const entitiesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/entities", component: Entities });
+const entityProfileRoute = createRoute({ getParentRoute: () => rootRoute, path: "/entities/$slug", component: EntityProfile });
 const loginRoute = createRoute({ getParentRoute: () => rootRoute, path: "/login", component: Login, beforeLoad: redirectIfAuthed });
 const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: "/register", component: Register, beforeLoad: redirectIfAuthed });
 const resetRoute = createRoute({ getParentRoute: () => rootRoute, path: "/reset", component: Reset });
@@ -49,7 +53,7 @@ const resourceRoute = createRoute({ getParentRoute: () => appRoute, path: "/admi
 const profileRoute = createRoute({ getParentRoute: () => appRoute, path: "/profile", component: Profile });
 
 const routeTree = rootRoute.addChildren([
-  indexRoute, loginRoute, registerRoute, resetRoute,
+  indexRoute, entitiesRoute, entityProfileRoute, loginRoute, registerRoute, resetRoute,
   appRoute.addChildren([dashboardRoute, adminRoute, resourceRoute, profileRoute]),
 ]);
 
