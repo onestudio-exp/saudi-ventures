@@ -237,9 +237,11 @@ func isSaudiRelevant(text string) bool {
 	return false
 }
 
-// GenerateNarrative produces a Cortex-written Narrative digest from recent
-// articles + entities. Returns ErrCortexDisabled when Cortex is not configured.
-func GenerateNarrative(ctx context.Context, a *app.App, windowDays int, kind string) (*db.Narrative, error) {
+// GenerateNarrative produces a Cortex-written Narrative grounded in the real
+// directory dataset (entity counts by kind + a rich roster) and recent articles.
+// `topic` focuses the brief and becomes the title (default: an overall digest).
+// Returns ErrCortexDisabled when Cortex is not configured.
+func GenerateNarrative(ctx context.Context, a *app.App, windowDays int, kind, topic string) (*db.Narrative, error) {
 	if windowDays <= 0 {
 		windowDays = 7
 	}
@@ -252,17 +254,23 @@ func GenerateNarrative(ctx context.Context, a *app.App, windowDays int, kind str
 		return nil, ErrCortexDisabled
 	}
 
-	articles, err := models.Articles(a).Order("created_at DESC").Limit(30).Get(ctx)
+	articles, err := models.Articles(a).Order("created_at DESC").Limit(25).Get(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("load articles failed: %w", err)
 	}
-	entities, err := models.Entities(a).Order("created_at DESC").Limit(50).Get(ctx)
+	entities, err := models.Entities(a).Order("created_at DESC").Limit(140).Get(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("load entities failed: %w", err)
 	}
+	total, kindCounts := entityStats(ctx, a)
 
-	system := "You are a senior analyst of the Saudi venture economy. Write concise, factual markdown digests for an executive audience. No preamble."
-	user := buildDigestPrompt(windowDays, articles, entities)
+	title := strings.TrimSpace(topic)
+	if title == "" {
+		title = "Saudi Venture Economy Digest"
+	}
+
+	system := "You are a senior analyst of the Saudi venture economy. Write an insight-dense, factual markdown brief for executives — grounded ONLY in the dataset and articles provided. Reference real entities and the sector mix. No preamble, no invented figures."
+	user := buildDigestPrompt(windowDays, topic, total, kindCounts, articles, entities)
 
 	content, usage, err := client.Complete(ctx, system, user)
 	if err != nil {
@@ -271,7 +279,7 @@ func GenerateNarrative(ctx context.Context, a *app.App, windowDays int, kind str
 
 	model := modelName(client)
 	row, err := models.Narratives(a).Create(ctx, map[string]any{
-		"title":             "Saudi Venture Economy Digest",
+		"title":             title,
 		"kind":              kind,
 		"body_md":           content,
 		"window_days":       int64(windowDays),
@@ -287,6 +295,27 @@ func GenerateNarrative(ctx context.Context, a *app.App, windowDays int, kind str
 	return row, nil
 }
 
+// entityStats returns the total entity count and a compact "676 Startup, 361 VC, …"
+// breakdown by kind, used to ground the narrative prompt in the real dataset.
+func entityStats(ctx context.Context, a *app.App) (int, string) {
+	rows, err := a.SQLDB.QueryContext(ctx, "SELECT kind, count(*) FROM entities GROUP BY kind ORDER BY count(*) DESC")
+	if err != nil {
+		return 0, ""
+	}
+	defer rows.Close()
+	total := 0
+	var parts []string
+	for rows.Next() {
+		var kind string
+		var n int
+		if rows.Scan(&kind, &n) == nil {
+			total += n
+			parts = append(parts, fmt.Sprintf("%d %s", n, kind))
+		}
+	}
+	return total, strings.Join(parts, ", ")
+}
+
 // modelName returns the configured model for persistence: prefer the env value,
 // falling back to the client's resolved model.
 func modelName(c *cortex.Client) string {
@@ -296,42 +325,60 @@ func modelName(c *cortex.Client) string {
 	return c.Model()
 }
 
-// buildDigestPrompt assembles the user prompt from recent article titles and a
-// sample of entity names grouped by kind.
-func buildDigestPrompt(windowDays int, articles []db.Article, entities []db.Entity) string {
+// buildDigestPrompt assembles a dataset-grounded prompt: the full directory scale
+// (total + counts by kind), a rich entity roster (name · sector · HQ grouped by
+// kind), and recent articles — then the writing instruction (focused by `topic`).
+func buildDigestPrompt(windowDays int, topic string, total int, kindCounts string, articles []db.Article, entities []db.Entity) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "Recent articles (most recent first):\n")
-	if len(articles) == 0 {
-		b.WriteString("(none available)\n")
-	}
-	for _, art := range articles {
-		fmt.Fprintf(&b, "- %s", art.Title)
-		if art.SourceName != nil && *art.SourceName != "" {
-			fmt.Fprintf(&b, " (%s)", *art.SourceName)
-		}
-		if art.Summary != nil && *art.Summary != "" {
-			fmt.Fprintf(&b, ": %s", *art.Summary)
-		}
-		b.WriteString("\n")
+
+	if total > 0 {
+		fmt.Fprintf(&b, "DATASET — the Saudi Ventures Intelligence directory tracks %d ecosystem entities.\nBreakdown by kind: %s.\n\n", total, kindCounts)
 	}
 
-	// Group entity names by kind for a compact roster.
+	// Rich roster grouped by kind (name · sector · HQ), capped per kind.
 	byKind := map[string][]string{}
 	order := []string{}
 	for _, e := range entities {
 		if _, ok := byKind[e.Kind]; !ok {
 			order = append(order, e.Kind)
 		}
-		byKind[e.Kind] = append(byKind[e.Kind], e.Name)
+		if len(byKind[e.Kind]) >= 10 {
+			continue
+		}
+		line := e.Name
+		if e.Sector != nil && *e.Sector != "" {
+			line += " (" + *e.Sector + ")"
+		}
+		if e.Headquarters != nil && *e.Headquarters != "" {
+			line += " — " + *e.Headquarters
+		}
+		byKind[e.Kind] = append(byKind[e.Kind], line)
 	}
 	if len(order) > 0 {
-		b.WriteString("\nTracked entities by kind:\n")
+		b.WriteString("SAMPLE ENTITIES (by kind):\n")
 		for _, k := range order {
-			fmt.Fprintf(&b, "- %s: %s\n", k, strings.Join(byKind[k], ", "))
+			fmt.Fprintf(&b, "- %s: %s\n", k, strings.Join(byKind[k], "; "))
 		}
 	}
 
-	fmt.Fprintf(&b, "\nWrite a tight markdown digest (~300-500 words) of the current state of the Saudi startup ecosystem for the last %d days. Use short, clearly-titled sections. Be factual and base it on the articles above; do not invent figures.", windowDays)
+	if len(articles) > 0 {
+		b.WriteString("\nRECENT NEWS:\n")
+		for _, art := range articles {
+			fmt.Fprintf(&b, "- %s", art.Title)
+			if art.Summary != nil && *art.Summary != "" {
+				fmt.Fprintf(&b, ": %s", *art.Summary)
+			}
+			b.WriteString("\n")
+		}
+	}
+
+	b.WriteString("\n")
+	if strings.TrimSpace(topic) != "" {
+		fmt.Fprintf(&b, "Write an executive intelligence brief focused on: %q, for the Saudi venture economy. ", topic)
+	} else {
+		fmt.Fprintf(&b, "Write an executive intelligence brief on the state of the Saudi venture economy (last %d days). ", windowDays)
+	}
+	b.WriteString("Use markdown with clear sections (Overview, Funding & Investment, Notable Players, Sector Trends, Outlook). ~450-650 words. Ground every claim in the dataset and news above; cite real entity names and the sector mix; do NOT invent specific dollar figures.")
 	return b.String()
 }
 

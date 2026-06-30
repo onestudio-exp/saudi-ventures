@@ -85,7 +85,7 @@ func runIngestCycle(ctx context.Context, a *app.App) {
 
 // runDigestCycle generates a 7-day narrative digest.
 func runDigestCycle(ctx context.Context, a *app.App) {
-	row, err := GenerateNarrative(ctx, a, 7, "digest")
+	row, err := GenerateNarrative(ctx, a, 7, "digest", "")
 	switch {
 	case err == ErrCortexDisabled:
 		a.Log.Info("scheduled digest skipped", "reason", "cortex not configured")

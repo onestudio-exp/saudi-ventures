@@ -112,6 +112,16 @@ func main() {
 		return
 	}
 
+	// Refresh: clear previously-imported rows (our kinds only; curated lowercase
+	// kinds like "startup"/"investor" are untouched), so re-runs update the data.
+	var quoted []string
+	for _, m := range modules {
+		quoted = append(quoted, "'"+strings.ReplaceAll(m.Kind, "'", "''")+"'")
+	}
+	if _, err := a.SQLDB.ExecContext(ctx, "DELETE FROM entities WHERE kind IN ("+strings.Join(quoted, ",")+")"); err != nil {
+		k.Log.Warn("ingest_eco: clear failed", "err", err)
+	}
+
 	httpc := &http.Client{Timeout: 60 * time.Second}
 	seen := map[string]bool{}
 	totalIn, totalSkip := 0, 0
@@ -154,8 +164,18 @@ func main() {
 				"kind":    m.Kind,
 				"claimed": false,
 			}
-			if v := str(e, "description"); v != "" {
-				fields["description"] = v
+			desc := str(e, "description")
+			if desc == "" { // startups often have no description — synthesize from stage + tags
+				var parts []string
+				for _, p := range []string{str(e, "stage"), str(e, "tags")} {
+					if p != "" {
+						parts = append(parts, p)
+					}
+				}
+				desc = strings.Join(parts, " · ")
+			}
+			if desc != "" {
+				fields["description"] = desc
 			}
 			if v := str(e, "industry", "sector", "category", "focus"); v != "" {
 				fields["sector"] = v

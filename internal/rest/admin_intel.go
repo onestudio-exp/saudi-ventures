@@ -42,13 +42,14 @@ func registerNarrativeGenerate(api huma.API, a *app.App, adminMW huma.Middleware
 		Middlewares:   adminMW,
 	}, func(ctx context.Context, in *struct {
 		Body struct {
-			WindowDays int    `json:"window_days"`
-			Kind       string `json:"kind"`
+			WindowDays int    `json:"window_days,omitempty"`
+			Kind       string `json:"kind,omitempty"`
+			Topic      string `json:"topic,omitempty"`
 		}
 	}) (*struct {
 		Body resources.NarrativeResponse
 	}, error) {
-		row, err := pipeline.GenerateNarrative(ctx, a, in.Body.WindowDays, in.Body.Kind)
+		row, err := pipeline.GenerateNarrative(ctx, a, in.Body.WindowDays, in.Body.Kind, in.Body.Topic)
 		if errors.Is(err, pipeline.ErrCortexDisabled) {
 			return nil, huma.Error503ServiceUnavailable("cortex not configured")
 		}
