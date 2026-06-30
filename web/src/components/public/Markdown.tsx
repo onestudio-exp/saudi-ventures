@@ -28,9 +28,17 @@ export function Markdown({ text }: { text: string }) {
   for (const raw of lines) {
     const line = raw.trim();
     if (!line) { flush(); continue; }
-    if (line.startsWith("### ")) { flush(); out.push(<h4 key={out.length} className="mt-4 font-semibold text-foreground">{inline(line.slice(4))}</h4>); }
-    else if (line.startsWith("## ")) { flush(); out.push(<h3 key={out.length} className="mt-5 text-base font-semibold text-foreground">{inline(line.slice(3))}</h3>); }
-    else if (line.startsWith("# ")) { flush(); out.push(<h2 key={out.length} className="mt-5 text-lg font-bold text-foreground">{inline(line.slice(2))}</h2>); }
+    // Any ATX heading level (#, ##, ### … up to ######). Cortex commonly emits ####.
+    const h = line.match(/^(#{1,6})\s+(.*)$/);
+    if (h) {
+      flush();
+      const level = h[1].length;
+      const content = h[2].replace(/\s*#+\s*$/, ""); // strip trailing "###" if present
+      if (level <= 1) out.push(<h2 key={out.length} className="mt-6 text-xl font-bold text-foreground">{inline(content)}</h2>);
+      else if (level === 2) out.push(<h3 key={out.length} className="mt-5 text-lg font-bold text-foreground">{inline(content)}</h3>);
+      else if (level === 3) out.push(<h4 key={out.length} className="mt-5 text-base font-semibold text-foreground">{inline(content)}</h4>);
+      else out.push(<h5 key={out.length} className="mt-4 text-sm font-semibold uppercase tracking-wide text-foreground/90">{inline(content)}</h5>);
+    }
     else if (/^[-*]\s+/.test(line)) { list.push(line.replace(/^[-*]\s+/, "")); }
     else { flush(); out.push(<p key={out.length} className="mt-2 leading-relaxed">{inline(line)}</p>); }
   }

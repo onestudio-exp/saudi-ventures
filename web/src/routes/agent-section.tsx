@@ -86,6 +86,7 @@ export function AgentSection() {
             <ChatFab
               agent={slug}
               speaker={persona?.name ?? agent.name}
+              label={persona?.name ?? agent.name}
               suggestions={[
                 tx("What changed this week?", "ما الذي تغيّر هذا الأسبوع؟"),
                 tx("Who are the key players?", "من هم اللاعبون الرئيسيون؟"),

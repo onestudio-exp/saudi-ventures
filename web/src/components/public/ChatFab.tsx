@@ -8,12 +8,14 @@ interface Props {
   entity?: string;
   speaker: string;
   suggestions?: string[];
+  // Short name shown on the launcher button (persona/agent/entity name).
+  label?: string;
 }
 
 // ChatFab is a floating action button that opens a Cortex chat drawer in the
 // corner of any page. It reuses AgentChat for the actual conversation, so the
 // agent persona / entity context flows through unchanged.
-export function ChatFab({ agent, entity, speaker, suggestions }: Props) {
+export function ChatFab({ agent, entity, speaker, suggestions, label }: Props) {
   const { language } = useT();
   const ar = language === "ar";
   const tx = (en: string, a: string) => (ar ? a : en);
@@ -58,7 +60,9 @@ export function ChatFab({ agent, entity, speaker, suggestions }: Props) {
         aria-expanded={open}
       >
         {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
-        <span className="hidden sm:inline">{open ? tx("Close", "إغلاق") : tx("Ask the AI", "اسأل الذكاء")}</span>
+        <span className="hidden sm:inline">
+          {open ? tx("Close", "إغلاق") : `${tx("Ask", "اسأل")} ${label ?? speaker}`}
+        </span>
       </button>
     </div>
   );

@@ -140,6 +140,7 @@ export function EntityProfile() {
             <ChatFab
               entity={slug}
               speaker={tx(`${entity.name} · AI analyst`, `${entity.name} · محلّل الذكاء`)}
+              label={entity.name}
               suggestions={[
                 tx(`Give me a brief on ${entity.name}.`, `أعطني نبذة عن ${entity.name}.`),
                 tx("What do they do?", "ماذا يفعلون؟"),

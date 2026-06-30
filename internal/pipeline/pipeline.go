@@ -400,10 +400,27 @@ func ScanAlerts(ctx context.Context, a *app.App, limit int) (created int, alerts
 		return 0, nil, fmt.Errorf("load articles failed: %w", err)
 	}
 
+	// Dedup state: never alert the same article twice (repeat scans), and never
+	// create a second alert for the same story (different URLs → near-identical
+	// titles). Seed from existing alerts so dedup holds across scans.
+	existing, _ := models.Alerts(a).Order("created_at DESC").Limit(300).Get(ctx)
+	alertedArticles := map[string]bool{}
+	seenSigs := make([]alertSig, 0, len(existing))
+	for _, al := range existing {
+		if al.ArticleID != nil && *al.ArticleID != "" {
+			alertedArticles[*al.ArticleID] = true
+		}
+		seenSigs = append(seenSigs, alertSig{signal: al.Signal, toks: titleTokens(al.Title)})
+	}
+
 	system := "You classify Saudi startup/VC news into a market signal. Respond with ONLY a compact JSON object, no markdown fences."
 
 	alerts = []db.Alert{}
 	for _, art := range articles {
+		// Skip articles that already produced an alert in a prior scan.
+		if alertedArticles[art.ID] {
+			continue
+		}
 		body := ""
 		if art.Summary != nil && *art.Summary != "" {
 			body = *art.Summary
@@ -428,6 +445,13 @@ func ScanAlerts(ctx context.Context, a *app.App, limit int) (created int, alerts
 			continue
 		}
 
+		// Skip if this classification duplicates an existing/just-created alert:
+		// same signal and a highly similar title (same story from another source).
+		toks := titleTokens(cls.Title)
+		if isDuplicateAlert(cls.Signal, toks, seenSigs) {
+			continue
+		}
+
 		articleID := art.ID
 		row, rerr := models.Alerts(a).Create(ctx, map[string]any{
 			"signal":       cls.Signal,
@@ -442,10 +466,68 @@ func ScanAlerts(ctx context.Context, a *app.App, limit int) (created int, alerts
 		}
 		a.Emit(ctx, "alert.created", row)
 		alerts = append(alerts, *row)
+		alertedArticles[art.ID] = true
+		seenSigs = append(seenSigs, alertSig{signal: cls.Signal, toks: toks})
 		created++
 	}
 
 	return created, alerts, nil
+}
+
+// alertSig is a lightweight fingerprint of an alert for dedup: its signal plus the
+// set of significant title tokens.
+type alertSig struct {
+	signal string
+	toks   map[string]bool
+}
+
+// titleTokens normalizes a title into a set of significant lowercased word tokens
+// (drops punctuation and very short stopwords), used for similarity comparison.
+func titleTokens(s string) map[string]bool {
+	out := map[string]bool{}
+	var b strings.Builder
+	for _, r := range strings.ToLower(s) {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r >= 0x0600 { // keep latin, digits, Arabic
+			b.WriteRune(r)
+		} else {
+			b.WriteRune(' ')
+		}
+	}
+	for _, w := range strings.Fields(b.String()) {
+		if len(w) >= 3 {
+			out[w] = true
+		}
+	}
+	return out
+}
+
+// isDuplicateAlert reports whether a candidate (signal + title tokens) is a near
+// duplicate of any already-seen alert — same signal and Jaccard title overlap ≥ 0.5.
+func isDuplicateAlert(signal string, toks map[string]bool, seen []alertSig) bool {
+	for _, s := range seen {
+		if s.signal == signal && jaccard(toks, s.toks) >= 0.5 {
+			return true
+		}
+	}
+	return false
+}
+
+// jaccard is the intersection-over-union of two token sets (0 when both empty).
+func jaccard(a, b map[string]bool) float64 {
+	if len(a) == 0 || len(b) == 0 {
+		return 0
+	}
+	inter := 0
+	for t := range a {
+		if b[t] {
+			inter++
+		}
+	}
+	union := len(a) + len(b) - inter
+	if union == 0 {
+		return 0
+	}
+	return float64(inter) / float64(union)
 }
 
 // classification is the lenient shape we parse from the model's JSON reply.
