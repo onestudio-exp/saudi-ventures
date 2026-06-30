@@ -12,10 +12,22 @@ func SeedAll(ctx context.Context, a *app.App) error {
 	if err := SeedAgent(ctx, a); err != nil {
 		return err
 	}
+	if err := SeedCapability(ctx, a); err != nil {
+		return err
+	}
+	if err := SeedCapabilitySource(ctx, a); err != nil {
+		return err
+	}
 	if err := SeedEntity(ctx, a); err != nil {
 		return err
 	}
 	if err := SeedLead(ctx, a); err != nil {
+		return err
+	}
+	if err := SeedPrompt(ctx, a); err != nil {
+		return err
+	}
+	if err := SeedSource(ctx, a); err != nil {
 		return err
 	}
 	return nil

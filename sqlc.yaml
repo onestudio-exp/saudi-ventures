@@ -27,3 +27,5 @@ sql:
             go_type:
               type: "int64"
               pointer: true
+          - db_type: "jsonb"
+            go_type: "string"

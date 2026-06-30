@@ -54,6 +54,94 @@ resources:
           pg: boolean
           "null": false
       controller: true
+    - name: Capability
+      table: capabilities
+      fields:
+        - name: slug
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: name_en
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: name_ar
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: kind
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: enabled
+          go: bool
+          gql: Boolean!
+          pg: boolean
+          "null": false
+        - name: nav_order
+          go: int64
+          gql: Int!
+          pg: bigint
+          "null": false
+        - name: nav_icon
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: route
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: description_en
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: description_ar
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: config
+          go: string
+          gql: String!
+          pg: jsonb
+          "null": false
+        - name: workflow_steps
+          go: string
+          gql: String!
+          pg: jsonb
+          "null": false
+      controller: true
+    - name: CapabilitySource
+      table: capability_sources
+      fields:
+        - name: capability_id
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: source_id
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: config
+          go: string
+          gql: String!
+          pg: jsonb
+          "null": false
+        - name: active
+          go: bool
+          gql: Boolean!
+          pg: boolean
+          "null": false
+      controller: true
     - name: Entity
       table: entities
       fields:
@@ -141,4 +229,67 @@ resources:
           gql: String
           pg: text
           "null": true
+      controller: true
+    - name: Prompt
+      table: prompts
+      fields:
+        - name: capability_id
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: prompt_key
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: content_en
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: content_ar
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: version
+          go: int64
+          gql: Int!
+          pg: bigint
+          "null": false
+        - name: active
+          go: bool
+          gql: Boolean!
+          pg: boolean
+          "null": false
+      controller: true
+    - name: Source
+      table: sources
+      fields:
+        - name: slug
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: name
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: kind
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: config
+          go: string
+          gql: String!
+          pg: jsonb
+          "null": false
+        - name: enabled
+          go: bool
+          gql: Boolean!
+          pg: boolean
+          "null": false
       controller: true
