@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { Button, Input, Label, useT } from "@togo-framework/ui";
 import { submitLead, type LeadSource } from "../../lib/public";
 
@@ -10,15 +10,18 @@ export function LeadForm({
   sourcePage,
   sourceAgent,
   withMessage = true,
+  submitLabel,
 }: {
   sourceType: LeadSource;
   sourcePage: string;
   sourceAgent?: string;
   withMessage?: boolean;
+  submitLabel?: string;
 }) {
   const { language } = useT();
   const ar = language === "ar";
   const tx = (en: string, a: string) => (ar ? a : en);
+  const uid = useId(); // unique field ids so the form can render more than once per page
 
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -60,19 +63,19 @@ export function LeadForm({
     <form onSubmit={onSubmit} className="space-y-3" dir={ar ? "rtl" : "ltr"}>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="lead-email">{tx("Email", "البريد الإلكتروني")}</Label>
-          <Input id="lead-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+          <Label htmlFor={`${uid}-email`}>{tx("Email", "البريد الإلكتروني")}</Label>
+          <Input id={`${uid}-email`} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="lead-wa">{tx("WhatsApp", "واتساب")}</Label>
-          <Input id="lead-wa" required value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+9665XXXXXXXX" />
+          <Label htmlFor={`${uid}-wa`}>{tx("WhatsApp", "واتساب")}</Label>
+          <Input id={`${uid}-wa`} required value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+9665XXXXXXXX" />
         </div>
       </div>
       {showMessage && (
         <div className="space-y-1.5">
-          <Label htmlFor="lead-msg">{tx("Message (optional)", "رسالة (اختياري)")}</Label>
+          <Label htmlFor={`${uid}-msg`}>{tx("Message (optional)", "رسالة (اختياري)")}</Label>
           <textarea
-            id="lead-msg"
+            id={`${uid}-msg`}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={3}
@@ -82,7 +85,7 @@ export function LeadForm({
       )}
       {state === "error" && <p className="text-sm text-destructive">{err}</p>}
       <Button type="submit" disabled={state === "loading"} className="w-full sm:w-auto">
-        {state === "loading" ? tx("Sending…", "جارٍ الإرسال…") : tx("Submit", "إرسال")}
+        {state === "loading" ? tx("Sending…", "جارٍ الإرسال…") : submitLabel ?? tx("Submit", "إرسال")}
       </Button>
     </form>
   );
