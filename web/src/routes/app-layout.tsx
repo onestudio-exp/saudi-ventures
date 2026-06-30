@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate, useRouterState, Link } from "@tanstack/react-router";
-import { LayoutGrid, Table2, User, LogOut, Layers, ChevronDown } from "lucide-react";
+import { LayoutGrid, Table2, User, LogOut, Layers, ChevronDown, Radar } from "lucide-react";
 import {
   SidebarProvider, Sidebar, SidebarHeader, SidebarContent,
   SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton,
@@ -78,6 +78,11 @@ export function AppLayout() {
               <SidebarMenuItem>
                 <SidebarMenuButton isActive={pathname === "/admin"} tooltip={ar_label("Admin", "الإدارة", ar)} onClick={() => go("/admin")}>
                   <Table2 className="h-4 w-4" /><span>{ar_label("Admin", "الإدارة", ar)}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton isActive={pathname === "/admin/intel"} tooltip={ar_label("Intelligence", "الذكاء", ar)} onClick={() => go("/admin/intel")}>
+                  <Radar className="h-4 w-4" /><span>{ar_label("Intelligence", "الذكاء", ar)}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
