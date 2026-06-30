@@ -22,6 +22,7 @@ import (
 	"github.com/saudi-ventures/saudi-ventures/internal/app"
 	graphgen "github.com/saudi-ventures/saudi-ventures/internal/graph/gen"
 	"github.com/saudi-ventures/saudi-ventures/internal/graph/resolvers"
+	"github.com/saudi-ventures/saudi-ventures/internal/pipeline"
 	_ "github.com/saudi-ventures/saudi-ventures/internal/plugins" // blank-imports installed plugins (togo install)
 	"github.com/saudi-ventures/saudi-ventures/internal/rest"
 )
@@ -58,6 +59,10 @@ func Boot() *app.App {
 	if k.Realtime != nil { // realtime feature enabled
 		k.Router.Get("/events", k.Realtime.Handler())
 	}
+
+	// Background Scout->Cortex scheduler. Disabled unless INGEST_ENABLED is
+	// truthy; only started in Boot (never during OpenAPI generation).
+	pipeline.StartScheduler(context.Background(), a)
 	return a
 }
 
