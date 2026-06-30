@@ -109,9 +109,14 @@ export function EntityProfile() {
               } catch {
                 meta = {};
               }
-              const hide = new Set(["id", "name", "logo_url", "is_active", "is_hidden", "sort_order", "created_at", "updated_at", "description", "website"]);
+              const hide = new Set([
+                "id", "name", "logo_url", "is_active", "is_hidden", "sort_order",
+                "created_at", "updated_at", "description", "website",
+                "country_id", "original_page", "featured", "channel_id", "ingest_metadata",
+              ]);
+              const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(s);
               const entries = Object.entries(meta).filter(
-                ([k, v]) => !hide.has(k) && v !== null && v !== "" && typeof v !== "object",
+                ([k, v]) => !hide.has(k) && v !== null && v !== "" && typeof v !== "object" && !isUUID(String(v)),
               );
               if (entries.length === 0) return null;
               const label = (k: string) => k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

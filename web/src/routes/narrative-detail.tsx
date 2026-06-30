@@ -3,6 +3,7 @@ import { Link, useParams } from "@tanstack/react-router";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
+import { Markdown } from "../components/public/Markdown";
 import { getNarrativeById, type Narrative } from "../lib/public";
 
 export function NarrativeDetail() {
@@ -34,7 +35,7 @@ export function NarrativeDetail() {
             <div className="mt-2 text-xs capitalize text-muted-foreground">
               {[n.kind, n.period_start && n.period_end ? `${new Date(n.period_start).toLocaleDateString()} – ${new Date(n.period_end).toLocaleDateString()}` : null].filter(Boolean).join(" · ")}
             </div>
-            <div className="mt-6 whitespace-pre-wrap leading-relaxed text-foreground/90">{n.body_md}</div>
+            <div className="mt-6"><Markdown text={n.body_md} /></div>
           </article>
         )}
       </div>
