@@ -1,7 +1,7 @@
 # Saudi Ventures Intelligence
 
 > Public showcase & lead-generation platform for the Saudi startup ecosystem.
-> A standalone **ID8Media** product — independent of, and not coupled to, Sentra.
+> A hybrid **ID8Media** product — app-owned data model & UI built on top of the Sentra intelligence engine (the Sentra harvester for news ingestion, Cortex for AI narratives & alerts).
 
 A One Studio venture · [Hub page](https://onestudio-agent-hub.vercel.app/ventures/saudi-ventures)
 
@@ -28,9 +28,9 @@ Saudi Ventures Intelligence is a standalone public web platform that maps and pr
 
 # Scope (v0.1)
 
-**In scope:** entity profile pages + "claim your profile" request, newsletter capture (store-only), module **Agent** personas with smart contextual lead CTAs, an admin settings page for Agent config, and a single source-attributed lead store.
+**In scope:** entity profile pages + "claim your profile" request, newsletter capture (store-only), module **Agent** personas with smart contextual lead CTAs, an admin settings page for Agent config, a single source-attributed lead store, news ingestion (via the Sentra harvester), AI narratives & classified alerts (via Cortex), and admin authentication (lead/admin surfaces are auth-gated).
 
-**Out of scope:** email/WhatsApp delivery integrations, end-user auth/permissions, automated profile editing, any Sentra dependency.
+**Out of scope:** email/WhatsApp delivery integrations, automated profile editing.
 
 # High-Level Features
 
@@ -49,6 +49,13 @@ Scaffolded via togo (`togo make:resource`):
 | **Entity** | Ecosystem org profiles (startup / VC / accelerator / incubator) + claim flow |
 | **Agent**  | Per-module persona: name, image, self-description, configurable CTA |
 | **Lead**   | Unified, source-attributed lead record (claim / newsletter / agent_cta) |
+| **Article** | Ingested news item from the Sentra harvester |
+| **Narrative** | AI-generated digest / narrative produced by Cortex |
+| **Alert** | Classified signal surfaced from ingested news |
+| **Capability** | DB-driven, Sentra-style registry entry: slug, bilingual names, kind, enabled flag, nav metadata, `config` jsonb, `workflow_steps` jsonb |
+| **Source** | News connector definition feeding ingestion |
+| **CapabilitySource** | M:N join linking capabilities to their news sources |
+| **Prompt** | Versioned, bilingual Cortex prompt |
 
 ---
 

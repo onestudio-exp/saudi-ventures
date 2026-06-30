@@ -9,7 +9,7 @@
 
 | Field | Detail |
 |---|---|
-| Product / Project | Saudi Ventures Intelligence (standalone, separate from Sentra) |
+| Product / Project | Saudi Ventures Intelligence (hybrid: Sentra engine + app-owned data/UI) |
 | Status | Draft v0.1 — for team review |
 | Last updated | 29 June 2026 |
 
@@ -17,7 +17,7 @@
 
 ## 1. Overview & Background
 
-The Saudi Ecosystem Site is a standalone public web platform that maps and presents the Saudi startup ecosystem. It is deliberately decoupled from Sentra: it runs on its own domain and does not depend on, embed, or reuse Sentra infrastructure.
+The Saudi Ecosystem Site is a hybrid public web platform that maps and presents the Saudi startup ecosystem. It depends on Sentra as its upstream intelligence engine — the Sentra harvester for news ingestion and Cortex (the OpenAI-compatible LLM gateway, reached via an MCP-minted virtual key) for AI narratives and alert classification — while owning its own Postgres data model and the public/admin UI on its own domain.
 
 The product serves a dual purpose. Outward-facing, it is a credibility showcase that demonstrates how deeply ID8Media understands the Saudi market, positioning the company as the most comprehensive and authoritative player in that space. Internally, it is a lightweight instrument for measuring demand: by capturing leads (email and WhatsApp) against specific features and personas, the team learns which capabilities attract real interest and can prioritize the backlog accordingly.
 
@@ -35,9 +35,8 @@ The product serves a dual purpose. Outward-facing, it is a credibility showcase 
 
 ### 2.2 Non-Goals (for this release)
 - No email-service or WhatsApp provider integration — leads are stored only.
-- No user-authentication or permission/role management system.
 - No automated profile editing — "claim" is a request, handled manually for now.
-- No dependency on or integration with Sentra.
+- Admin authentication, news ingestion, AI narratives, and alerts ARE in scope for v0.1 (see §7); the public site still needs no login.
 
 ---
 
@@ -147,6 +146,22 @@ All three features funnel into a single, minimal lead record. Source attribution
 | `source_page` | Yes | Page / module the lead came from. |
 | `source_agent` | Conditional | Agent name when source_type = agent_cta. |
 | `created_at` | Yes | Timestamp. |
+
+### 7.1 Intelligence & Capability Resources
+
+Beyond Entity, Agent, and Lead, v0.1 adds the intelligence layer fed by the Sentra engine plus a Sentra-style pluggable capability registry:
+
+| Resource | Purpose |
+|---|---|
+| **Article** | Ingested news item from the Sentra harvester. |
+| **Narrative** | AI-generated digest / narrative produced by Cortex. |
+| **Alert** | Classified signal surfaced from ingested news. |
+| **Capability** | DB-driven registry entry (slug, bilingual names, kind, enabled flag, nav metadata, `config` jsonb, `workflow_steps` jsonb) — capabilities are data, enabled/configured at runtime, Sentra-style, not code. |
+| **Source** | News connector definition feeding ingestion. |
+| **CapabilitySource** | M:N join linking capabilities to their news sources. |
+| **Prompt** | Versioned, bilingual Cortex prompt. |
+
+**Auth boundary:** Lead reads and Article/Narrative/Alert writes, plus Source and Prompt management, are admin-gated. Public reads — entities, agents/capabilities, published narratives, the radar, and alerts — need no login.
 
 ---
 
