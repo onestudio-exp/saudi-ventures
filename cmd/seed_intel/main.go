@@ -32,6 +32,16 @@ func main() {
 		return
 	}
 
+	// Ecosystem-wide brief for the home page (kind "overview").
+	if _, derr := a.SQLDB.ExecContext(ctx, "DELETE FROM narratives WHERE kind = $1", "overview"); derr != nil {
+		k.Log.Warn("seed_intel: clear overview failed", "err", derr)
+	}
+	if row, gerr := pipeline.GenerateNarrative(ctx, a, 7, "overview", "Saudi venture ecosystem — overall state, scale, and outlook across startups, investors, and sectors"); gerr != nil {
+		k.Log.Warn("seed_intel: overview failed", "err", gerr)
+	} else {
+		k.Log.Info("seed_intel: overview generated", "narrative_id", row.ID)
+	}
+
 	for _, ag := range agents {
 		// Focus the brief on this agent's domain.
 		topic := ag.Name

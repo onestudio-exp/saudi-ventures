@@ -7,7 +7,8 @@ import { StatCard, useT } from "@togo-framework/ui";
 import { APP_NAME } from "../lib/api";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
-import { listAgents, listEntities, type Agent, type Entity } from "../lib/public";
+import { Markdown } from "../components/public/Markdown";
+import { listAgents, listEntities, listNarratives, type Agent, type Entity, type Narrative } from "../lib/public";
 
 // Agent module -> lucide component.
 const ICONS: Record<string, typeof Layers> = {
@@ -22,8 +23,12 @@ export function Home() {
 
   const [agents, setAgents] = useState<Agent[]>([]);
   const [entities, setEntities] = useState<Entity[]>([]);
+  const [overview, setOverview] = useState<Narrative | null>(null);
 
   useEffect(() => {
+    listNarratives()
+      .then((ns) => setOverview(ns.find((n) => n.kind === "overview" && n.status === "published") ?? null))
+      .catch(() => {});
     listAgents()
       .then((as) =>
         setAgents(
@@ -83,6 +88,23 @@ export function Home() {
                 <StatCard label={s.label} value={s.value.toLocaleString()} />
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* AI ecosystem brief (Cortex, grounded in the dataset) */}
+      {overview && (
+        <section className="mx-auto max-w-4xl px-6 pb-8">
+          <div className="surface-card rounded-2xl p-6">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{tx("AI Ecosystem Brief", "موجز المنظومة بالذكاء الاصطناعي")}</h2>
+              {overview.model && <span className="ms-auto text-xs text-muted-foreground/60">{overview.model}</span>}
+            </div>
+            <Markdown text={overview.body_md.length > 900 ? overview.body_md.slice(0, 900) + "…" : overview.body_md} />
+            <Link to="/narratives/$id" params={{ id: overview.id }} className="mt-3 inline-flex items-center gap-1 text-sm text-primary hover:underline">
+              {tx("Read the full brief", "اقرأ الموجز كاملاً")} <Arrow className="h-4 w-4" />
+            </Link>
           </div>
         </section>
       )}
