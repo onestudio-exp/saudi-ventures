@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	github.com/jackc/pgx/v5 v5.7.1
 	github.com/togo-framework/auth v0.8.0
 	github.com/togo-framework/auth-dev v0.1.0
 	github.com/togo-framework/cache v0.3.0
@@ -39,7 +40,6 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.7.1 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

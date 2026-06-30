@@ -17,6 +17,12 @@ import (
 // Queries use the driver-agnostic ORM; responses go through resources.TransformEntity;
 // create/delete broadcast events ("entity.created"/".deleted").
 func RegisterEntityRoutes(api huma.API, a *app.App) {
+	// §1: entity READS are public (the showcase); WRITES are admin-only.
+	var adminMW huma.Middlewares
+	if a != nil {
+		adminMW = huma.Middlewares{NewGate(api, a.Kernel).RequireAdmin}
+	}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-entities", Method: http.MethodGet, Path: "/api/entities",
 		Summary: "List Entities", Tags: []string{"Entity"},
@@ -57,7 +63,7 @@ func RegisterEntityRoutes(api huma.API, a *app.App) {
 
 	huma.Register(api, huma.Operation{
 		OperationID: "create-entity", Method: http.MethodPost, Path: "/api/entities",
-		DefaultStatus: http.StatusCreated, Summary: "Create a Entity", Tags: []string{"Entity"},
+		DefaultStatus: http.StatusCreated, Summary: "Create a Entity", Tags: []string{"Entity"}, Middlewares: adminMW,
 	}, func(ctx context.Context, in *struct {
 		Body struct {
 			Name         string  `json:"name" validate:"required"`
@@ -101,7 +107,7 @@ func RegisterEntityRoutes(api huma.API, a *app.App) {
 
 	huma.Register(api, huma.Operation{
 		OperationID: "update-entity", Method: http.MethodPut, Path: "/api/entities/{id}",
-		Summary: "Update a Entity", Tags: []string{"Entity"},
+		Summary: "Update a Entity", Tags: []string{"Entity"}, Middlewares: adminMW,
 	}, func(ctx context.Context, in *struct {
 		ID   string `path:"id"`
 		Body struct {
@@ -145,7 +151,7 @@ func RegisterEntityRoutes(api huma.API, a *app.App) {
 
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-entity", Method: http.MethodDelete, Path: "/api/entities/{id}",
-		DefaultStatus: http.StatusNoContent, Summary: "Delete a Entity", Tags: []string{"Entity"},
+		DefaultStatus: http.StatusNoContent, Summary: "Delete a Entity", Tags: []string{"Entity"}, Middlewares: adminMW,
 	}, func(ctx context.Context, in *struct {
 		ID string `path:"id"`
 	}) (*struct{}, error) {

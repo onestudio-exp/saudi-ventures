@@ -1,6 +1,6 @@
 version: "2"
 sql:
-  - engine: "sqlite"
+  - engine: "postgresql"
     schema: "internal/db/schema"
     queries: "internal/db/queries"
     gen:
@@ -13,6 +13,17 @@ sql:
         rename:
           image_url: "ImageURL"
           logo_url: "LogoURL"
+        # The postgresql engine maps nullable columns to sql.Null* by default, but
+        # the resource transformers (internal/resources/*) consume *string / *int64.
+        # Force pointers for nullable text/bigint to preserve that contract.
         overrides:
-          - db_type: "datetime"
-            go_type: "time.Time"
+          - db_type: "text"
+            nullable: true
+            go_type:
+              type: "string"
+              pointer: true
+          - db_type: "pg_catalog.int8"
+            nullable: true
+            go_type:
+              type: "int64"
+              pointer: true

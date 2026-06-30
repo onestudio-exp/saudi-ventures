@@ -17,9 +17,16 @@ import (
 // Queries use the driver-agnostic ORM; responses go through resources.TransformLead;
 // create/delete broadcast events ("lead.created"/".deleted").
 func RegisterLeadRoutes(api huma.API, a *app.App) {
+	// §1 auth boundary: lead reads/writes are ADMIN-ONLY (the captured info is
+	// gated); only POST /api/leads (create) is public so the site can submit leads.
+	var adminMW huma.Middlewares
+	if a != nil {
+		adminMW = huma.Middlewares{NewGate(api, a.Kernel).RequireAdmin}
+	}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-leads", Method: http.MethodGet, Path: "/api/leads",
-		Summary: "List Leads", Tags: []string{"Lead"},
+		Summary: "List Leads", Tags: []string{"Lead"}, Middlewares: adminMW,
 	}, func(ctx context.Context, in *struct {
 		Limit  int `query:"limit" default:"100"`
 		Offset int `query:"offset"`
@@ -37,7 +44,7 @@ func RegisterLeadRoutes(api huma.API, a *app.App) {
 
 	huma.Register(api, huma.Operation{
 		OperationID: "get-lead", Method: http.MethodGet, Path: "/api/leads/{id}",
-		Summary: "Get a Lead", Tags: []string{"Lead"},
+		Summary: "Get a Lead", Tags: []string{"Lead"}, Middlewares: adminMW,
 	}, func(ctx context.Context, in *struct {
 		ID string `path:"id"`
 	}) (*struct {
@@ -62,10 +69,10 @@ func RegisterLeadRoutes(api huma.API, a *app.App) {
 		Body struct {
 			Email       string  `json:"email" validate:"required"`
 			Whatsapp    string  `json:"whatsapp" validate:"required"`
-			Message     *string `json:"message"`
+			Message     *string `json:"message,omitempty"`
 			SourceType  string  `json:"source_type" validate:"required"`
 			SourcePage  string  `json:"source_page" validate:"required"`
-			SourceAgent *string `json:"source_agent"`
+			SourceAgent *string `json:"source_agent,omitempty"`
 		}
 	}) (*struct {
 		Body resources.LeadResponse
@@ -93,16 +100,16 @@ func RegisterLeadRoutes(api huma.API, a *app.App) {
 
 	huma.Register(api, huma.Operation{
 		OperationID: "update-lead", Method: http.MethodPut, Path: "/api/leads/{id}",
-		Summary: "Update a Lead", Tags: []string{"Lead"},
+		Summary: "Update a Lead", Tags: []string{"Lead"}, Middlewares: adminMW,
 	}, func(ctx context.Context, in *struct {
 		ID   string `path:"id"`
 		Body struct {
 			Email       string  `json:"email"`
 			Whatsapp    string  `json:"whatsapp"`
-			Message     *string `json:"message"`
+			Message     *string `json:"message,omitempty"`
 			SourceType  string  `json:"source_type"`
 			SourcePage  string  `json:"source_page"`
-			SourceAgent *string `json:"source_agent"`
+			SourceAgent *string `json:"source_agent,omitempty"`
 		}
 	}) (*struct {
 		Body resources.LeadResponse
@@ -129,7 +136,7 @@ func RegisterLeadRoutes(api huma.API, a *app.App) {
 
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-lead", Method: http.MethodDelete, Path: "/api/leads/{id}",
-		DefaultStatus: http.StatusNoContent, Summary: "Delete a Lead", Tags: []string{"Lead"},
+		DefaultStatus: http.StatusNoContent, Summary: "Delete a Lead", Tags: []string{"Lead"}, Middlewares: adminMW,
 	}, func(ctx context.Context, in *struct {
 		ID string `path:"id"`
 	}) (*struct{}, error) {

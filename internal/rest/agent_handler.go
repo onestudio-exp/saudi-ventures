@@ -17,6 +17,12 @@ import (
 // Queries use the driver-agnostic ORM; responses go through resources.TransformAgent;
 // create/delete broadcast events ("agent.created"/".deleted").
 func RegisterAgentRoutes(api huma.API, a *app.App) {
+	// §1: agent READS are public (persona sections); WRITES are admin-only.
+	var adminMW huma.Middlewares
+	if a != nil {
+		adminMW = huma.Middlewares{NewGate(api, a.Kernel).RequireAdmin}
+	}
+
 	huma.Register(api, huma.Operation{
 		OperationID: "list-agents", Method: http.MethodGet, Path: "/api/agents",
 		Summary: "List Agents", Tags: []string{"Agent"},
@@ -57,7 +63,7 @@ func RegisterAgentRoutes(api huma.API, a *app.App) {
 
 	huma.Register(api, huma.Operation{
 		OperationID: "create-agent", Method: http.MethodPost, Path: "/api/agents",
-		DefaultStatus: http.StatusCreated, Summary: "Create a Agent", Tags: []string{"Agent"},
+		DefaultStatus: http.StatusCreated, Summary: "Create a Agent", Tags: []string{"Agent"}, Middlewares: adminMW,
 	}, func(ctx context.Context, in *struct {
 		Body struct {
 			Name        string  `json:"name" validate:"required"`
@@ -101,7 +107,7 @@ func RegisterAgentRoutes(api huma.API, a *app.App) {
 
 	huma.Register(api, huma.Operation{
 		OperationID: "update-agent", Method: http.MethodPut, Path: "/api/agents/{id}",
-		Summary: "Update a Agent", Tags: []string{"Agent"},
+		Summary: "Update a Agent", Tags: []string{"Agent"}, Middlewares: adminMW,
 	}, func(ctx context.Context, in *struct {
 		ID   string `path:"id"`
 		Body struct {
@@ -145,7 +151,7 @@ func RegisterAgentRoutes(api huma.API, a *app.App) {
 
 	huma.Register(api, huma.Operation{
 		OperationID: "delete-agent", Method: http.MethodDelete, Path: "/api/agents/{id}",
-		DefaultStatus: http.StatusNoContent, Summary: "Delete a Agent", Tags: []string{"Agent"},
+		DefaultStatus: http.StatusNoContent, Summary: "Delete a Agent", Tags: []string{"Agent"}, Middlewares: adminMW,
 	}, func(ctx context.Context, in *struct {
 		ID string `path:"id"`
 	}) (*struct{}, error) {
