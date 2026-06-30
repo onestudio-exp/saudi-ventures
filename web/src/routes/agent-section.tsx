@@ -54,7 +54,7 @@ export function AgentSection() {
                 <Icon className="h-7 w-7" />
               </span>
               <div>
-                <h1 className="text-3xl font-bold tracking-tight">{agent.name}</h1>
+                <h1 className="font-display text-4xl">{agent.name}</h1>
                 {persona && (
                   <p className="mt-1 text-sm font-medium text-primary">
                     {tx("Meet", "تعرّف على")} {persona.name} — {persona.character}
@@ -71,8 +71,8 @@ export function AgentSection() {
               <section className="surface-card mt-8 rounded-2xl p-6">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{tx("AI Intelligence Brief", "موجز الذكاء الاصطناعي")}</h2>
-                  {brief.model && <span className="ms-auto text-xs text-muted-foreground/60">{brief.model}</span>}
+                  <span className="kicker">{tx("AI Intelligence Brief", "موجز الذكاء الاصطناعي")}</span>
+                  {brief.model && <span className="ms-auto font-mono text-xs text-muted-foreground/60">{brief.model}</span>}
                 </div>
                 <div className="mt-3"><Markdown text={brief.body_md} /></div>
               </section>

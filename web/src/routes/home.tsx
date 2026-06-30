@@ -4,7 +4,7 @@ import {
   Radar, Rocket, TrendingUp, Handshake, Layers, Sparkles, ArrowRight, ArrowLeft,
   Check, Bell, Search, Mail, Lock,
 } from "lucide-react";
-import { StatCard, useT } from "@togo-framework/ui";
+import { useT } from "@togo-framework/ui";
 import { APP_NAME } from "../lib/api";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
@@ -70,24 +70,27 @@ export function Home() {
 
       {/* hero */}
       <section className="relative overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem]"
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[30rem]"
           style={{ background: "radial-gradient(680px 340px at 50% -6%, color-mix(in srgb, var(--primary) 24%, transparent), transparent 70%)" }} />
-        <div className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-20">
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-sm"
+        <div aria-hidden className="grid-texture pointer-events-none absolute inset-x-0 top-0 -z-10 h-[30rem]" />
+        <div className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-24">
+          <div className="reveal reveal-1 mx-auto mb-7 flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-sm"
             style={{ background: "linear-gradient(135deg,#1f9d57,#127a44 55%,#0c5e34)" }}>
             <Sparkles className="h-7 w-7" />
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-            {tx("The Saudi venture ecosystem, decoded weekly.", "منظومة ريادة الأعمال السعودية، مُحلّلة أسبوعيًا.")}
+          <p className="reveal reveal-1 kicker mb-5">{tx("Saudi Venture Intelligence", "ذكاء ريادة الأعمال السعودية")}</p>
+          <h1 className="font-display reveal reveal-2 mx-auto max-w-3xl text-[2.6rem] leading-[1.05] sm:text-6xl">
+            {tx("The Saudi venture ecosystem, ", "منظومة ريادة الأعمال السعودية، ")}
+            <span className="italic text-primary">{tx("decoded weekly.", "مُحلّلة أسبوعيًا.")}</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
+          <p className="reveal reveal-3 mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
             {tx(
               `${APP_NAME} tracks ${count}+ entities and turns the noise into one AI-written brief — funding rounds, new startups, and market shifts — delivered to your inbox and WhatsApp.`,
               `${APP_NAME} يتابع أكثر من ${count} كيان ويحوّل الضجيج إلى موجز واحد بالذكاء الاصطناعي — جولات التمويل والشركات الناشئة وتحوّلات السوق — يصلك عبر البريد وواتساب.`,
             )}
           </p>
 
-          <ul className="mx-auto mt-7 flex max-w-xl flex-col items-start gap-2 text-start sm:flex-row sm:flex-wrap sm:justify-center">
+          <ul className="reveal reveal-3 mx-auto mt-7 flex max-w-xl flex-col items-start gap-2 text-start sm:flex-row sm:flex-wrap sm:justify-center">
             {perks.map((p) => (
               <li key={p} className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                 <Check className="h-4 w-4 shrink-0 text-primary" /> {p}
@@ -95,17 +98,18 @@ export function Home() {
             ))}
           </ul>
 
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="reveal reveal-4 mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <a href="#subscribe"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90">
+              className="group inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.7)]">
               <Mail className="h-4 w-4" /> {tx("Subscribe free", "اشترك مجانًا")}
             </a>
             <Link to="/entities"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border px-6 py-3 text-sm font-semibold transition-colors hover:bg-accent/40">
-              {tx("Explore the ecosystem", "استكشف المنظومة")} <Arrow className="h-4 w-4" />
+              className="group inline-flex items-center gap-1.5 rounded-xl border border-border px-6 py-3 text-sm font-semibold transition-colors hover:bg-accent/40">
+              {tx("Explore the ecosystem", "استكشف المنظومة")}
+              <Arrow className="h-4 w-4 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
             </Link>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground/70">
+          <p className="reveal reveal-4 mt-3 text-xs text-muted-foreground/70">
             {tx("Free · No spam · Unsubscribe anytime", "مجاني · بلا إزعاج · إلغاء الاشتراك في أي وقت")}
           </p>
         </div>
@@ -113,14 +117,13 @@ export function Home() {
 
       {/* by the numbers — proof of scale */}
       {entities.length > 0 && (
-        <section className="mx-auto max-w-6xl px-6 pb-10">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            {tx("By the numbers", "بالأرقام")}
-          </h2>
+        <section className="mx-auto max-w-6xl px-6 pb-12">
+          <p className="kicker mb-4">{tx("By the numbers", "بالأرقام")}</p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {stats.map((s) => (
               <div key={s.label} className="surface-card rounded-2xl p-5">
-                <StatCard label={s.label} value={s.value.toLocaleString()} />
+                <div className="font-mono tabular text-3xl font-semibold text-foreground">{s.value.toLocaleString()}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
               </div>
             ))}
           </div>
@@ -136,7 +139,7 @@ export function Home() {
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                 <Sparkles className="h-3.5 w-3.5" /> {tx("Weekly intelligence", "ذكاء أسبوعي")}
               </span>
-              <h2 className="mt-4 text-2xl font-bold tracking-tight sm:text-3xl">
+              <h2 className="font-display mt-4 text-3xl sm:text-4xl">
                 {tx("Join the Saudi venture insiders.", "انضم إلى المطّلعين على ريادة الأعمال السعودية.")}
               </h2>
               <p className="mt-3 text-sm text-muted-foreground">
@@ -158,7 +161,7 @@ export function Home() {
 
       {/* what you get */}
       <section className="mx-auto max-w-6xl px-6 pb-12">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{tx("What you get", "ما الذي تحصل عليه")}</h2>
+        <p className="kicker mb-4">{tx("What you get", "ما الذي تحصل عليه")}</p>
         <div className="grid gap-4 sm:grid-cols-3">
           {[
             { icon: Sparkles, t: tx("Weekly AI Brief", "موجز أسبوعي بالذكاء"), d: tx(`An AI-written digest of what moved in Saudi venture — grounded in ${count} entities.`, `موجز مكتوب بالذكاء الاصطناعي لما تحرّك في ريادة الأعمال السعودية — مبني على ${count} كيان.`) },
@@ -182,8 +185,8 @@ export function Home() {
           <div className="surface-card rounded-2xl p-6">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{tx("This week's brief — preview", "موجز هذا الأسبوع — معاينة")}</h2>
-              {overview.model && <span className="ms-auto text-xs text-muted-foreground/60">{overview.model}</span>}
+              <span className="kicker">{tx("This week's brief — preview", "موجز هذا الأسبوع — معاينة")}</span>
+              {overview.model && <span className="ms-auto font-mono text-xs text-muted-foreground/60">{overview.model}</span>}
             </div>
             <div className="relative mt-3">
               <Markdown text={overview.body_md.length > 700 ? overview.body_md.slice(0, 700) + "…" : overview.body_md} />
@@ -205,8 +208,8 @@ export function Home() {
 
       {/* agents */}
       <section className="mx-auto max-w-6xl px-6 pb-4">
-        <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{tx("Your AI agents", "وكلاؤك بالذكاء الاصطناعي")}</h2>
-        <p className="mb-4 text-sm text-muted-foreground">{tx("Five specialists watching the ecosystem for you — chat with any of them.", "خمسة متخصّصين يراقبون المنظومة نيابةً عنك — تحدّث مع أيٍّ منهم.")}</p>
+        <p className="kicker mb-2">{tx("Your AI agents", "وكلاؤك بالذكاء الاصطناعي")}</p>
+        <p className="mb-5 max-w-xl text-sm text-muted-foreground">{tx("Five specialists watching the ecosystem for you — chat with any of them.", "خمسة متخصّصين يراقبون المنظومة نيابةً عنك — تحدّث مع أيٍّ منهم.")}</p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {agents.map((a) => {
             const Icon = ICONS[a.module] ?? Sparkles;
@@ -236,8 +239,8 @@ export function Home() {
 
       {/* closing subscribe — for those who scrolled the whole way */}
       <section className="border-t border-border bg-card/40">
-        <div className="mx-auto max-w-3xl px-6 py-14 text-center">
-          <h2 className="text-2xl font-bold tracking-tight">{tx("Don't miss the next shift.", "لا تفوّت التحوّل القادم.")}</h2>
+        <div className="mx-auto max-w-3xl px-6 py-16 text-center">
+          <h2 className="font-display text-3xl sm:text-4xl">{tx("Don't miss the next shift.", "لا تفوّت التحوّل القادم.")}</h2>
           <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
             {tx("Get the weekly Saudi venture brief and real-time alerts by email and WhatsApp.", "احصل على موجز ريادة الأعمال السعودية الأسبوعي والتنبيهات الفورية عبر البريد وواتساب.")}
           </p>

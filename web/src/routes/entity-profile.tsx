@@ -63,7 +63,7 @@ export function EntityProfile() {
             <header className="mt-6 flex items-start gap-4">
               <EntityLogo entity={entity} />
               <div className="min-w-0">
-                <h1 className="text-3xl font-bold tracking-tight">{entity.name}</h1>
+                <h1 className="font-display text-4xl">{entity.name}</h1>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Badge className="capitalize">{entity.kind}</Badge>
                   {entity.sector && <Badge variant="outline">{entity.sector}</Badge>}
@@ -123,7 +123,7 @@ export function EntityProfile() {
               const label = (k: string) => k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
               return (
                 <section className="surface-card mt-8 rounded-2xl p-6">
-                  <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{tx("Details", "التفاصيل")}</h2>
+                  <p className="kicker">{tx("Details", "التفاصيل")}</p>
                   <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-1.5 sm:grid-cols-2">
                     {entries.map(([k, v]) => (
                       <div key={k} className="flex items-start justify-between gap-3 border-b border-border/50 py-1.5 text-sm">

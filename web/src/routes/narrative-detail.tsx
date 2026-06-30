@@ -31,8 +31,8 @@ export function NarrativeDetail() {
         {n === null && <p className="mt-8 text-sm text-muted-foreground">{tx("Narrative not found.", "الرواية غير موجودة.")}</p>}
         {n && (
           <article className="mt-6">
-            <h1 className="text-3xl font-bold tracking-tight">{n.title}</h1>
-            <div className="mt-2 text-xs capitalize text-muted-foreground">
+            <h1 className="font-display text-4xl">{n.title}</h1>
+            <div className="mt-2 font-mono text-xs capitalize text-muted-foreground">
               {[n.kind, n.period_start && n.period_end ? `${new Date(n.period_start).toLocaleDateString()} – ${new Date(n.period_end).toLocaleDateString()}` : null].filter(Boolean).join(" · ")}
             </div>
             <div className="mt-6"><Markdown text={n.body_md} /></div>

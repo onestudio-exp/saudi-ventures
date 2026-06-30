@@ -14,7 +14,37 @@
   --brand-primary-glow: 152 56% 40%;
 }
 
-body { margin: 0; font-family: var(--tg-font); }
+/* ── Typography system ──────────────────────────────────────────────────────
+   Fraunces = characterful editorial display (headlines). IBM Plex Sans = refined
+   body. IBM Plex Mono = data/labels (the "intelligence terminal" signal). Plex
+   Sans Arabic keeps RTL premium. Deliberately not Inter/Roboto/system. */
+:root {
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", var(--tg-font), system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+}
+body { margin: 0; font-family: var(--font-body); }
+[dir="rtl"] body,
+[dir="rtl"] .font-display { font-family: "IBM Plex Sans Arabic", var(--font-body); }
+
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+.font-mono { font-family: var(--font-mono); }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Eyebrow / kicker label — mono, tracked, uppercase, in the brand accent. */
+.kicker {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: hsl(var(--primary));
+}
 
 /* Base surface + text colour from the active theme tokens — so unstyled text
    (plain headings like "Welcome back", dashboard titles) is legible in dark
@@ -50,5 +80,35 @@ body { margin: 0; font-family: var(--tg-font); }
     box-shadow:
       0 0 0 1px hsl(var(--primary) / 0.25),
       0 12px 32px -14px hsl(var(--primary) / 0.30);
+  }
+}
+
+/* ── Motion + texture ───────────────────────────────────────────────────────
+   One orchestrated page-load reveal (fade + rise) with staggered delays, plus a
+   fine grid texture for atmospheric depth. Fully disabled for reduced-motion. */
+@layer utilities {
+  @keyframes tg-reveal {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .reveal { opacity: 0; animation: tg-reveal 0.7s cubic-bezier(0.22, 0.7, 0.2, 1) both; }
+  .reveal-1 { animation-delay: 0.04s; }
+  .reveal-2 { animation-delay: 0.12s; }
+  .reveal-3 { animation-delay: 0.20s; }
+  .reveal-4 { animation-delay: 0.28s; }
+  .reveal-5 { animation-delay: 0.36s; }
+
+  /* Fine grid — reads as a data/terminal surface behind the hero. */
+  .grid-texture {
+    background-image:
+      linear-gradient(hsl(var(--foreground) / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: radial-gradient(700px 420px at 50% 0%, #000 30%, transparent 78%);
+            mask-image: radial-gradient(700px 420px at 50% 0%, #000 30%, transparent 78%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { animation: none; opacity: 1; transform: none; }
   }
 }
