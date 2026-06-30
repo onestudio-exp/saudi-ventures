@@ -12,6 +12,9 @@ func SeedAll(ctx context.Context, a *app.App) error {
 	if err := SeedAgent(ctx, a); err != nil {
 		return err
 	}
+	if err := SeedArticle(ctx, a); err != nil {
+		return err
+	}
 	if err := SeedCapability(ctx, a); err != nil {
 		return err
 	}

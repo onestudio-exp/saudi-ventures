@@ -37,8 +37,23 @@ async function getJSON<T>(path: string): Promise<T> {
   return r.json() as Promise<T>;
 }
 
+export interface Article {
+  id: string;
+  url: string;
+  title: string;
+  content?: string | null;
+  summary?: string | null;
+  why_it_matters?: string | null;
+  source_name?: string | null;
+  source_type: string;
+  image_url?: string | null;
+  published_at?: string | null;
+  status: string;
+}
+
 export const listEntities = () => getJSON<Entity[]>(`/api/entities?limit=200`);
 export const listCapabilities = () => getJSON<Capability[]>(`/api/capabilities?limit=100`);
+export const listArticles = () => getJSON<Article[]>(`/api/articles?limit=100`);
 
 // No get-by-slug endpoint yet — fetch the list and match (fine for seed-sized data).
 export async function getEntityBySlug(slug: string): Promise<Entity | undefined> {

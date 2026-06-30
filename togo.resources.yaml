@@ -54,6 +54,70 @@ resources:
           pg: boolean
           "null": false
       controller: true
+    - name: Article
+      table: articles
+      fields:
+        - name: url
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: title
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: content
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: summary
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: why_it_matters
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: source_name
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: source_type
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: image_url
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: published_at
+          go: time.Time
+          gql: String
+          pg: timestamptz
+          "null": true
+        - name: status
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: harvester_item_id
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: linked_venture_id
+          go: string
+          gql: String
+          pg: text
+          "null": true
+      controller: true
     - name: Capability
       table: capabilities
       fields:

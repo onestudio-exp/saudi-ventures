@@ -4,7 +4,7 @@ import { Radar, Rocket, TrendingUp, Handshake, Layers, Building2, ArrowRight, Ar
 import { useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
-import { getCapabilityBySlug, listEntities, type Capability, type Entity } from "../lib/public";
+import { getCapabilityBySlug, listEntities, listArticles, type Capability, type Entity, type Article } from "../lib/public";
 
 const ICONS: Record<string, typeof Layers> = {
   radar: Radar, rocket: Rocket, "trending-up": TrendingUp, handshake: Handshake, layers: Layers,
@@ -32,10 +32,12 @@ export function CapabilitySection() {
 
   const [cap, setCap] = useState<Capability | null | undefined>(undefined);
   const [entities, setEntities] = useState<Entity[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
 
   useEffect(() => {
     getCapabilityBySlug(slug).then((c) => setCap(c ?? null)).catch(() => setCap(null));
     listEntities().then(setEntities).catch(() => {});
+    if (slug === "news-radar") listArticles().then(setArticles).catch(() => {});
   }, [slug]);
 
   const Icon = ICONS[cap?.nav_icon ?? ""] ?? Layers;
@@ -70,12 +72,33 @@ export function CapabilitySection() {
             </header>
 
             {isNews ? (
-              <div className="mt-10 rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-                {tx(
-                  "Live news radar is being wired to the Sentra harvester. Want early access?",
-                  "يجري ربط رادار الأخبار بمحرّك سنترا. هل تريد وصولًا مبكرًا؟",
-                )}
-              </div>
+              articles.length > 0 ? (
+                <section className="mt-10">
+                  <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{tx("Latest news", "آخر الأخبار")}</h2>
+                  <div className="space-y-3">
+                    {articles.map((art) => (
+                      <a key={art.id} href={art.url} target="_blank" rel="noopener noreferrer"
+                        className="group block rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-accent/40">
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="font-semibold leading-snug">{art.title}</h3>
+                          <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground/50 transition-all group-hover:text-primary" />
+                        </div>
+                        {art.summary && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{art.summary}</p>}
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          {[art.source_name, art.published_at ? new Date(art.published_at).toLocaleDateString() : null].filter(Boolean).join(" · ")}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              ) : (
+                <div className="mt-10 rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                  {tx(
+                    "Live news radar is being wired to the Sentra harvester. Want early access?",
+                    "يجري ربط رادار الأخبار بمحرّك سنترا. هل تريد وصولًا مبكرًا؟",
+                  )}
+                </div>
+              )
             ) : (
               <section className="mt-10">
                 <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{tx("Related entities", "كيانات ذات صلة")}</h2>
