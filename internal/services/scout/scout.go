@@ -50,20 +50,9 @@ type Envelope struct {
 }
 
 const envelopesQuery = `query($limit:Int,$sourceId:String){ envelopes(limit:$limit, sourceId:$sourceId){ id sourceId content url lang collectedAt publishedAt } }`
-
-type graphqlRequest struct {
-	Query     string         `json:"query"`
-	Variables map[string]any `json:"variables"`
-}
-
-type envelopesResponse struct {
-	Data struct {
-		Envelopes []Envelope `json:"envelopes"`
-	} `json:"data"`
-	Errors []struct {
-		Message string `json:"message"`
-	} `json:"errors"`
-}
+// NOTE: search results can have a null collectedAt (a non-null field on the Envelope
+// type), which makes GraphQL reject the whole response — so we omit it here.
+const searchQuery = `query($q:String!,$limit:Int){ searchEnvelopes(q:$q, limit:$limit){ id sourceId content url lang } }`
 
 // Envelopes pulls recent envelopes via GraphQL, optionally filtered by source id.
 func (c *Client) Envelopes(ctx context.Context, limit int, sourceID string) ([]Envelope, error) {
@@ -74,11 +63,28 @@ func (c *Client) Envelopes(ctx context.Context, limit int, sourceID string) ([]E
 	if sourceID != "" {
 		vars["sourceId"] = sourceID
 	}
-	buf, err := json.Marshal(graphqlRequest{Query: envelopesQuery, Variables: vars})
+	return c.query(ctx, envelopesQuery, vars, "envelopes")
+}
+
+// Search returns envelopes matching a full-text query (keyword source-filtering).
+func (c *Client) Search(ctx context.Context, q string, limit int) ([]Envelope, error) {
+	if limit <= 0 {
+		limit = 20
+	}
+	return c.query(ctx, searchQuery, map[string]any{"q": q, "limit": limit}, "searchEnvelopes")
+}
+
+type graphqlRequest struct {
+	Query     string         `json:"query"`
+	Variables map[string]any `json:"variables"`
+}
+
+// query executes a GraphQL request and returns the envelope list under `field`.
+func (c *Client) query(ctx context.Context, gql string, vars map[string]any, field string) ([]Envelope, error) {
+	buf, err := json.Marshal(graphqlRequest{Query: gql, Variables: vars})
 	if err != nil {
 		return nil, fmt.Errorf("scout: marshal: %w", err)
 	}
-
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/graphql", bytes.NewReader(buf))
 	if err != nil {
 		return nil, fmt.Errorf("scout: build request: %w", err)
@@ -97,14 +103,19 @@ func (c *Client) Envelopes(ctx context.Context, limit int, sourceID string) ([]E
 		return nil, fmt.Errorf("scout: status %d: %s", resp.StatusCode, snippet(body))
 	}
 
-	var parsed envelopesResponse
+	var parsed struct {
+		Data   map[string][]Envelope `json:"data"`
+		Errors []struct {
+			Message string `json:"message"`
+		} `json:"errors"`
+	}
 	if err := json.Unmarshal(body, &parsed); err != nil {
 		return nil, fmt.Errorf("scout: decode response: %w: %s", err, snippet(body))
 	}
 	if len(parsed.Errors) > 0 {
 		return nil, fmt.Errorf("scout: graphql error: %s", parsed.Errors[0].Message)
 	}
-	return parsed.Data.Envelopes, nil
+	return parsed.Data[field], nil
 }
 
 func firstNonEmpty(vals ...string) string {
