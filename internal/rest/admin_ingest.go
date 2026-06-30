@@ -67,6 +67,11 @@ func RegisterAdminIngestRoutes(api huma.API, a *app.App) {
 		out.Body.Fetched = len(envs)
 
 		for _, e := range envs {
+			// Skip collection-metadata envelopes (JSON content, not article text).
+			if strings.HasPrefix(strings.TrimSpace(e.Content), "{") {
+				out.Body.Skipped++
+				continue
+			}
 			u := ""
 			if e.URL != nil {
 				u = strings.TrimSpace(*e.URL)
@@ -83,18 +88,22 @@ func RegisterAdminIngestRoutes(api huma.API, a *app.App) {
 
 			title := firstLine(e.Content, 120)
 			if title == "" {
-				title = e.Source
+				title = e.SourceID
 			}
 			fields := map[string]any{
 				"url":               u,
 				"title":             title,
 				"content":           e.Content,
-				"source_name":       e.Source,
+				"source_name":       e.SourceID,
 				"source_type":       "scout",
 				"status":            "ok",
 				"harvester_item_id": e.ID,
 			}
-			if t, perr := time.Parse(time.RFC3339, e.CollectedAt); perr == nil {
+			pub := e.CollectedAt
+			if e.PublishedAt != nil && *e.PublishedAt != "" {
+				pub = *e.PublishedAt
+			}
+			if t, perr := time.Parse(time.RFC3339, pub); perr == nil {
 				fields["published_at"] = t
 			}
 			if _, cerr := models.Articles(a).Create(ctx, fields); cerr != nil {
