@@ -12,6 +12,9 @@ func SeedAll(ctx context.Context, a *app.App) error {
 	if err := SeedAgent(ctx, a); err != nil {
 		return err
 	}
+	if err := SeedAlert(ctx, a); err != nil {
+		return err
+	}
 	if err := SeedArticle(ctx, a); err != nil {
 		return err
 	}
@@ -25,6 +28,9 @@ func SeedAll(ctx context.Context, a *app.App) error {
 		return err
 	}
 	if err := SeedLead(ctx, a); err != nil {
+		return err
+	}
+	if err := SeedNarrative(ctx, a); err != nil {
 		return err
 	}
 	if err := SeedPrompt(ctx, a); err != nil {

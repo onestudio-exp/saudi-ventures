@@ -51,9 +51,39 @@ export interface Article {
   status: string;
 }
 
+export interface Narrative {
+  id: string;
+  title: string;
+  kind: string;
+  body_md: string;
+  period_start?: string | null;
+  period_end?: string | null;
+  window_days?: number | null;
+  model?: string | null;
+  status: string;
+}
+
+export interface Alert {
+  id: string;
+  signal: string;
+  severity: string;
+  title: string;
+  summary?: string | null;
+  article_id?: string | null;
+  entity_id?: string | null;
+  acknowledged: boolean;
+}
+
 export const listEntities = () => getJSON<Entity[]>(`/api/entities?limit=200`);
 export const listCapabilities = () => getJSON<Capability[]>(`/api/capabilities?limit=100`);
 export const listArticles = () => getJSON<Article[]>(`/api/articles?limit=100`);
+export const listNarratives = () => getJSON<Narrative[]>(`/api/narratives?limit=100`);
+export const listAlerts = () => getJSON<Alert[]>(`/api/alerts?limit=100`);
+
+export async function getNarrativeById(id: string): Promise<Narrative | undefined> {
+  const all = await listNarratives();
+  return all.find((n) => n.id === id);
+}
 
 // No get-by-slug endpoint yet — fetch the list and match (fine for seed-sized data).
 export async function getEntityBySlug(slug: string): Promise<Entity | undefined> {

@@ -11,11 +11,13 @@ import (
 // togo.resources.yaml on every make:* / generate.
 func RegisterRoutes(api huma.API, a *app.App) {
 	RegisterAgentRoutes(api, a)
+	RegisterAlertRoutes(api, a)
 	RegisterArticleRoutes(api, a)
 	RegisterCapabilityRoutes(api, a)
 	RegisterCapabilitySourceRoutes(api, a)
 	RegisterEntityRoutes(api, a)
 	RegisterLeadRoutes(api, a)
+	RegisterNarrativeRoutes(api, a)
 	RegisterPromptRoutes(api, a)
 	RegisterSourceRoutes(api, a)
 }

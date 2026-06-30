@@ -54,6 +54,45 @@ resources:
           pg: boolean
           "null": false
       controller: true
+    - name: Alert
+      table: alerts
+      fields:
+        - name: signal
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: severity
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: title
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: summary
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: article_id
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: entity_id
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: acknowledged
+          go: bool
+          gql: Boolean!
+          pg: boolean
+          "null": false
+      controller: true
     - name: Article
       table: articles
       fields:
@@ -293,6 +332,60 @@ resources:
           gql: String
           pg: text
           "null": true
+      controller: true
+    - name: Narrative
+      table: narratives
+      fields:
+        - name: title
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: kind
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: body_md
+          go: string
+          gql: String!
+          pg: text
+          "null": false
+        - name: period_start
+          go: time.Time
+          gql: String
+          pg: timestamptz
+          "null": true
+        - name: period_end
+          go: time.Time
+          gql: String
+          pg: timestamptz
+          "null": true
+        - name: window_days
+          go: int64
+          gql: Int
+          pg: bigint
+          "null": true
+        - name: model
+          go: string
+          gql: String
+          pg: text
+          "null": true
+        - name: prompt_tokens
+          go: int64
+          gql: Int
+          pg: bigint
+          "null": true
+        - name: completion_tokens
+          go: int64
+          gql: Int
+          pg: bigint
+          "null": true
+        - name: status
+          go: string
+          gql: String!
+          pg: text
+          "null": false
       controller: true
     - name: Prompt
       table: prompts

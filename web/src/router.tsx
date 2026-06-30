@@ -6,6 +6,9 @@ import { Home } from "./routes/home";
 import { Entities } from "./routes/entities";
 import { EntityProfile } from "./routes/entity-profile";
 import { CapabilitySection } from "./routes/capability-section";
+import { Narratives } from "./routes/narratives";
+import { NarrativeDetail } from "./routes/narrative-detail";
+import { Alerts } from "./routes/alerts";
 import { Login } from "./routes/login";
 import { Register } from "./routes/register";
 import { Reset } from "./routes/reset";
@@ -31,6 +34,9 @@ const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: "/", com
 const entitiesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/entities", component: Entities });
 const entityProfileRoute = createRoute({ getParentRoute: () => rootRoute, path: "/entities/$slug", component: EntityProfile });
 const capabilityRoute = createRoute({ getParentRoute: () => rootRoute, path: "/modules/$slug", component: CapabilitySection });
+const narrativesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/narratives", component: Narratives });
+const narrativeDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: "/narratives/$id", component: NarrativeDetail });
+const alertsRoute = createRoute({ getParentRoute: () => rootRoute, path: "/alerts", component: Alerts });
 const loginRoute = createRoute({ getParentRoute: () => rootRoute, path: "/login", component: Login, beforeLoad: redirectIfAuthed });
 const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: "/register", component: Register, beforeLoad: redirectIfAuthed });
 const resetRoute = createRoute({ getParentRoute: () => rootRoute, path: "/reset", component: Reset });
@@ -55,7 +61,7 @@ const resourceRoute = createRoute({ getParentRoute: () => appRoute, path: "/admi
 const profileRoute = createRoute({ getParentRoute: () => appRoute, path: "/profile", component: Profile });
 
 const routeTree = rootRoute.addChildren([
-  indexRoute, entitiesRoute, entityProfileRoute, capabilityRoute, loginRoute, registerRoute, resetRoute,
+  indexRoute, entitiesRoute, entityProfileRoute, capabilityRoute, narrativesRoute, narrativeDetailRoute, alertsRoute, loginRoute, registerRoute, resetRoute,
   appRoute.addChildren([dashboardRoute, adminRoute, resourceRoute, profileRoute]),
 ]);
 

@@ -14,6 +14,9 @@ export function PublicNav() {
         <div className="flex items-center gap-5 text-sm text-muted-foreground">
           <Link to="/" className="transition-colors hover:text-foreground">{tx("Home", "الرئيسية")}</Link>
           <Link to="/entities" className="transition-colors hover:text-foreground">{tx("Directory", "الدليل")}</Link>
+          <Link to="/modules/$slug" params={{ slug: "news-radar" }} className="hidden transition-colors hover:text-foreground sm:inline">{tx("Radar", "الرادار")}</Link>
+          <Link to="/narratives" className="hidden transition-colors hover:text-foreground sm:inline">{tx("Narratives", "الروايات")}</Link>
+          <Link to="/alerts" className="hidden transition-colors hover:text-foreground sm:inline">{tx("Alerts", "التنبيهات")}</Link>
           <Link to="/login" className="transition-colors hover:text-foreground">{tx("Admin", "الإدارة")}</Link>
         </div>
       </nav>
