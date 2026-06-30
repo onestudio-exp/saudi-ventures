@@ -29,14 +29,27 @@ type Client struct {
 func New() *Client {
 	model := os.Getenv("CORTEX_MODEL")
 	if model == "" {
-		model = "gpt-4o"
+		model = "gemini-2.5-flash"
 	}
+	// Prefer the real Cortex product endpoint (CORTEX_HTTP_ADDR / CORTEX_TOKEN);
+	// fall back to any OpenAI-compatible gateway (CORTEX_BASE_URL / CORTEX_API_KEY).
+	baseURL := firstNonEmpty(os.Getenv("CORTEX_HTTP_ADDR"), os.Getenv("CORTEX_BASE_URL"))
+	apiKey := firstNonEmpty(os.Getenv("CORTEX_TOKEN"), os.Getenv("CORTEX_API_KEY"))
 	return &Client{
-		baseURL: strings.TrimRight(os.Getenv("CORTEX_BASE_URL"), "/"),
-		apiKey:  os.Getenv("CORTEX_API_KEY"),
+		baseURL: strings.TrimRight(baseURL, "/"),
+		apiKey:  apiKey,
 		model:   model,
 		http:    &http.Client{Timeout: 60 * time.Second},
 	}
+}
+
+func firstNonEmpty(vals ...string) string {
+	for _, v := range vals {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
 }
 
 // Enabled reports whether the client has the minimum config to make calls.
