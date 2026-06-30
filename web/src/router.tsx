@@ -6,6 +6,7 @@ import { Home } from "./routes/home";
 import { Entities } from "./routes/entities";
 import { EntityProfile } from "./routes/entity-profile";
 import { CapabilitySection } from "./routes/capability-section";
+import { AgentSection } from "./routes/agent-section";
 import { Narratives } from "./routes/narratives";
 import { NarrativeDetail } from "./routes/narrative-detail";
 import { Alerts } from "./routes/alerts";
@@ -35,6 +36,7 @@ const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: "/", com
 const entitiesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/entities", component: Entities });
 const entityProfileRoute = createRoute({ getParentRoute: () => rootRoute, path: "/entities/$slug", component: EntityProfile });
 const capabilityRoute = createRoute({ getParentRoute: () => rootRoute, path: "/modules/$slug", component: CapabilitySection });
+const agentSectionRoute = createRoute({ getParentRoute: () => rootRoute, path: "/agents/$slug", component: AgentSection });
 const narrativesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/narratives", component: Narratives });
 const narrativeDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: "/narratives/$id", component: NarrativeDetail });
 const alertsRoute = createRoute({ getParentRoute: () => rootRoute, path: "/alerts", component: Alerts });
@@ -63,7 +65,7 @@ const profileRoute = createRoute({ getParentRoute: () => appRoute, path: "/profi
 const intelRoute = createRoute({ getParentRoute: () => appRoute, path: "/admin/intel", component: AdminIntel });
 
 const routeTree = rootRoute.addChildren([
-  indexRoute, entitiesRoute, entityProfileRoute, capabilityRoute, narrativesRoute, narrativeDetailRoute, alertsRoute, loginRoute, registerRoute, resetRoute,
+  indexRoute, entitiesRoute, entityProfileRoute, capabilityRoute, agentSectionRoute, narrativesRoute, narrativeDetailRoute, alertsRoute, loginRoute, registerRoute, resetRoute,
   appRoute.addChildren([dashboardRoute, adminRoute, intelRoute, resourceRoute, profileRoute]),
 ]);
 

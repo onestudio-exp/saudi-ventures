@@ -3,6 +3,17 @@
 @source "../node_modules/@togo-framework/ui/dist";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ── Saudi Ventures brand ───────────────────────────────────────────────────
+   Override togo's crimson primary with Saudi green across every theme. Placed
+   after the @togo-framework/ui import so it wins at equal specificity. */
+:root, .dark, [data-theme] {
+  --primary: 152 56% 30%;
+  --primary-foreground: 0 0% 100%;
+  --ring: 152 56% 30%;
+  --brand-primary: 152 56% 30%;
+  --brand-primary-glow: 152 56% 40%;
+}
+
 body { margin: 0; font-family: var(--tg-font); }
 
 /* Base surface + text colour from the active theme tokens — so unstyled text

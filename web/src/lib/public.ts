@@ -74,6 +74,27 @@ export interface Alert {
   acknowledged: boolean;
 }
 
+export interface Agent {
+  id: string;
+  name: string;
+  slug: string;
+  module: string;
+  tagline?: string | null;
+  description?: string | null;
+  image_url?: string | null;
+  cta_text: string;
+  cta_subtext?: string | null;
+  sort_order?: number | null;
+  active: boolean;
+}
+
+export const listAgents = () => getJSON<Agent[]>(`/api/agents?limit=100`);
+
+export async function getAgentBySlug(slug: string): Promise<Agent | undefined> {
+  const all = await listAgents();
+  return all.find((a) => a.slug === slug);
+}
+
 export const listEntities = () => getJSON<Entity[]>(`/api/entities?limit=200`);
 export const listCapabilities = () => getJSON<Capability[]>(`/api/capabilities?limit=100`);
 export const listArticles = () => getJSON<Article[]>(`/api/articles?limit=100`);

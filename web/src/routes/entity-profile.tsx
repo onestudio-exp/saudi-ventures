@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "@tanstack/react-router";
-import { Building2, Globe, MapPin, Calendar, ArrowRight, ArrowLeft } from "lucide-react";
+import { Building2, ArrowRight, ArrowLeft } from "lucide-react";
 import { Badge, useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
@@ -49,20 +49,6 @@ export function EntityProfile() {
             </header>
 
             {entity.description && <p className="mt-6 leading-relaxed text-muted-foreground">{entity.description}</p>}
-
-            <dl className="mt-6 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-              {entity.headquarters && (
-                <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" /> {entity.headquarters}</div>
-              )}
-              {entity.founded_year != null && (
-                <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> {tx("Founded", "تأسست")} {entity.founded_year}</div>
-              )}
-              {entity.website && (
-                <a href={entity.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline">
-                  <Globe className="h-4 w-4" /> {tx("Website", "الموقع")}
-                </a>
-              )}
-            </dl>
 
             {/* Claim your profile — stored Lead (source_type=claim) */}
             <section className="mt-10 rounded-2xl border border-border bg-card/40 p-6">
