@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Radar, Rocket, TrendingUp, Handshake, Layers, Sparkles, ArrowRight, ArrowLeft,
-  Check, Bell, Search, Mail, Lock,
+  Bell, Search, Mail, Lock,
 } from "lucide-react";
 import { useT } from "@togo-framework/ui";
 import { APP_NAME } from "../lib/api";
@@ -10,7 +10,8 @@ import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
 import { SubscribeBar } from "../components/public/SubscribeBar";
 import { Markdown } from "../components/public/Markdown";
-import { listAgents, listEntities, listNarratives, type Agent, type Entity, type Narrative } from "../lib/public";
+import { RadarPanel, type RadarSignal } from "../components/public/RadarPanel";
+import { listAgents, listAlerts, listEntities, listNarratives, type Agent, type Entity, type Narrative } from "../lib/public";
 
 // Agent module -> lucide component.
 const ICONS: Record<string, typeof Layers> = {
@@ -26,10 +27,29 @@ export function Home() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [entities, setEntities] = useState<Entity[]>([]);
   const [overview, setOverview] = useState<Narrative | null>(null);
+  const [signals, setSignals] = useState<RadarSignal[]>([]);
 
   useEffect(() => {
     listNarratives()
-      .then((ns) => setOverview(ns.find((n) => n.kind === "overview" && n.status === "published") ?? null))
+      .then((ns) => {
+        setOverview(ns.find((n) => n.kind === "overview" && n.status === "published") ?? null);
+        setSignals((prev) => {
+          const narr: RadarSignal[] = ns.slice(0, 2).map((n) => ({ label: n.title, tag: "BRIEF", type: "policy" }));
+          return [...narr, ...prev].slice(0, 3);
+        });
+      })
+      .catch(() => {});
+    listAlerts()
+      .then((al) =>
+        setSignals((prev) => {
+          const sig: RadarSignal[] = al.slice(0, 3).map((a) => ({
+            label: a.title,
+            tag: (a.signal || "signal").replace(/_/g, " ").toUpperCase().slice(0, 10),
+            type: a.signal === "funding_round" ? "funding" : a.signal === "regulation" ? "policy" : a.signal === "new_entrant" ? "launch" : "alert",
+          }));
+          return [...sig, ...prev].slice(0, 3);
+        }),
+      )
       .catch(() => {});
     listAgents()
       .then((as) =>
@@ -44,6 +64,16 @@ export function Home() {
   }, []);
 
   const count = entities.length > 0 ? entities.length.toLocaleString() : "1,700";
+  const by = (kind: string) => entities.filter((e) => e.kind === kind).length;
+
+  // Radar shows real signals; before any land, a representative placeholder set.
+  const radarSignals: RadarSignal[] = signals.length
+    ? signals
+    : [
+        { label: tx("Live signals sync hourly", "تتزامن الإشارات كل ساعة"), tag: "LIVE", type: "funding" },
+        { label: tx("Cortex narratives", "روايات كورتكس"), tag: "BRIEF", type: "policy" },
+        { label: tx("Classified alerts", "تنبيهات مصنّفة"), tag: "ALERT", type: "alert" },
+      ];
 
   // Headline counts for the "by the numbers" strip.
   const stats = useMemo(() => {
@@ -57,61 +87,62 @@ export function Home() {
     ];
   }, [entities, ar]);
 
-  const perks = [
-    tx("A weekly AI ecosystem brief, written for you", "موجز أسبوعي للمنظومة بالذكاء الاصطناعي، مُعدّ لك"),
-    tx("Funding & deal alerts as they break", "تنبيهات التمويل والصفقات فور حدوثها"),
-    tx(`Full access to ${count}+ tracked entities`, `وصول كامل إلى أكثر من ${count} كيان مُتابَع`),
-  ];
-
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
       <PublicNav />
       <SubscribeBar />
 
-      {/* hero */}
+      {/* hero — two-column: pitch + live market radar */}
       <section className="relative overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[30rem]"
-          style={{ background: "radial-gradient(680px 340px at 50% -6%, color-mix(in srgb, var(--primary) 24%, transparent), transparent 70%)" }} />
-        <div aria-hidden className="grid-texture pointer-events-none absolute inset-x-0 top-0 -z-10 h-[30rem]" />
-        <div className="mx-auto max-w-4xl px-6 py-16 text-center sm:py-24">
-          <div className="reveal reveal-1 mx-auto mb-7 flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-sm"
-            style={{ background: "linear-gradient(135deg,#1f9d57,#127a44 55%,#0c5e34)" }}>
-            <Sparkles className="h-7 w-7" />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[34rem]"
+          style={{ background: "radial-gradient(900px 460px at 82% -12%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 60%)" }} />
+        <div aria-hidden className="grid-texture pointer-events-none absolute inset-x-0 top-0 -z-10 h-[34rem]" />
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 sm:py-20 lg:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <p className="reveal reveal-1 kicker mb-6 inline-flex items-center gap-2 rounded-full border border-[#1C3A2C] bg-[#12271E] px-3 py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {tx("By ID8Media · Powered by Cortex", "من ID8Media · مدعوم بكورتكس")}
+            </p>
+            <h1 className="font-display reveal reveal-2 text-[2.6rem] font-semibold leading-[1.04] sm:text-[3.25rem]">
+              {tx("The deepest map of the ", "أعمق خريطة لمنظومة ")}
+              <span className="text-primary">{tx("Saudi startup", "الشركات الناشئة")}</span>
+              {tx(" ecosystem.", " السعودية.")}
+            </h1>
+            <p className="reveal reveal-3 mt-5 max-w-[52ch] text-base leading-relaxed text-muted-foreground sm:text-lg">
+              {tx(
+                "Companies, investors, deals, and market signals — continuously ingested, synthesized, and kept current. One living intelligence layer for the Kingdom's venture economy.",
+                "الشركات والمستثمرون والصفقات وإشارات السوق — تُستوعب وتُلخّص وتبقى محدّثة باستمرار. طبقة ذكاء حيّة واحدة لاقتصاد ريادة الأعمال في المملكة.",
+              )}
+            </p>
+            <div className="reveal reveal-4 mt-8 flex flex-wrap gap-3">
+              <a href="#subscribe"
+                className="group inline-flex items-center gap-2 rounded-[9px] bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.7)]">
+                <Mail className="h-4 w-4" /> {tx("Get the weekly brief", "احصل على الموجز الأسبوعي")}
+              </a>
+              <Link to="/entities"
+                className="group inline-flex items-center gap-1.5 rounded-[9px] border border-border px-6 py-3 text-sm font-semibold transition-colors hover:bg-accent/40">
+                {tx("Explore the ecosystem", "استكشف المنظومة")}
+                <Arrow className="h-4 w-4 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+              </Link>
+            </div>
+            <div className="reveal reveal-4 mt-9 flex items-center gap-8">
+              {[
+                { v: count, l: tx("Entities mapped", "كيان مُوثّق") },
+                { v: by("VC") || by("Investor"), l: tx("Active investors", "مستثمر نشط") },
+                { v: by("Startup"), l: tx("Startups tracked", "شركة ناشئة") },
+              ].map((s, i) => (
+                <div key={i} className="flex items-center gap-8">
+                  {i > 0 && <span className="h-9 w-px bg-border" />}
+                  <div>
+                    <div className="font-display text-3xl font-semibold text-foreground">{typeof s.v === "number" ? s.v.toLocaleString() : s.v}</div>
+                    <div className="kicker mt-1 text-[10px]">{s.l}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="reveal reveal-1 kicker mb-5">{tx("Saudi Venture Intelligence", "ذكاء ريادة الأعمال السعودية")}</p>
-          <h1 className="font-display reveal reveal-2 mx-auto max-w-3xl text-[2.6rem] leading-[1.05] sm:text-6xl">
-            {tx("The Saudi venture ecosystem, ", "منظومة ريادة الأعمال السعودية، ")}
-            <span className="text-primary">{tx("decoded weekly.", "مُحلّلة أسبوعيًا.")}</span>
-          </h1>
-          <p className="reveal reveal-3 mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            {tx(
-              `${APP_NAME} tracks ${count}+ entities and turns the noise into one AI-written brief — funding rounds, new startups, and market shifts — delivered to your inbox and WhatsApp.`,
-              `${APP_NAME} يتابع أكثر من ${count} كيان ويحوّل الضجيج إلى موجز واحد بالذكاء الاصطناعي — جولات التمويل والشركات الناشئة وتحوّلات السوق — يصلك عبر البريد وواتساب.`,
-            )}
-          </p>
-
-          <ul className="reveal reveal-3 mx-auto mt-7 flex max-w-xl flex-col items-start gap-2 text-start sm:flex-row sm:flex-wrap sm:justify-center">
-            {perks.map((p) => (
-              <li key={p} className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <Check className="h-4 w-4 shrink-0 text-primary" /> {p}
-              </li>
-            ))}
-          </ul>
-
-          <div className="reveal reveal-4 mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a href="#subscribe"
-              className="group inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-[0_10px_30px_-10px_hsl(var(--primary)/0.7)]">
-              <Mail className="h-4 w-4" /> {tx("Subscribe free", "اشترك مجانًا")}
-            </a>
-            <Link to="/entities"
-              className="group inline-flex items-center gap-1.5 rounded-xl border border-border px-6 py-3 text-sm font-semibold transition-colors hover:bg-accent/40">
-              {tx("Explore the ecosystem", "استكشف المنظومة")}
-              <Arrow className="h-4 w-4 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
-            </Link>
+          <div className="reveal reveal-3">
+            <RadarPanel signals={radarSignals} />
           </div>
-          <p className="reveal reveal-4 mt-3 text-xs text-muted-foreground/70">
-            {tx("Free · No spam · Unsubscribe anytime", "مجاني · بلا إزعاج · إلغاء الاشتراك في أي وقت")}
-          </p>
         </div>
       </section>
 

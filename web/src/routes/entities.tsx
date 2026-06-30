@@ -3,35 +3,14 @@ import { Link } from "@tanstack/react-router";
 import { MapPin, Search } from "lucide-react";
 import { Badge, Input, useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
+import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { listEntities, type Entity } from "../lib/public";
 
 const MAX_RENDER = 120;
 
-// Logo with initials fallback. The <img> hides itself on error and reveals the
-// initials badge sitting behind it.
-function EntityLogo({ entity, size = "h-11 w-11" }: { entity: Entity; size?: string }) {
-  const initials = entity.name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-  return (
-    <span className={`relative flex ${size} shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-sm font-semibold text-primary ring-1 ring-inset ring-primary/15`}>
-      <span aria-hidden>{initials}</span>
-      {entity.logo_url && (
-        <img
-          src={entity.logo_url}
-          alt=""
-          loading="lazy"
-          className="absolute inset-0 h-full w-full bg-white object-contain"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).style.display = "none";
-          }}
-        />
-      )}
-    </span>
-  );
+// Gradient initials badge (design system), with the logo layered on when present.
+function EntityLogo({ entity }: { entity: Entity }) {
+  return <BadgeAvatar name={entity.name} logoUrl={entity.logo_url} size={44} radius={11} />;
 }
 
 export function Entities() {
@@ -74,7 +53,7 @@ export function Entities() {
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
       <PublicNav />
       <div className="mx-auto max-w-6xl px-6 py-12">
-        <h1 className="text-3xl font-bold tracking-tight">{tx("Ecosystem Directory", "دليل المنظومة")}</h1>
+        <h1 className="font-display text-4xl">{tx("Ecosystem Directory", "دليل المنظومة")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {tx(
             "Startups, investors, accelerators, and programs across the Kingdom.",

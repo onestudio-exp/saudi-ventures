@@ -126,5 +126,27 @@ body { margin: 0; font-family: var(--font-body); }
 
   @media (prefers-reduced-motion: reduce) {
     .reveal { animation: none; opacity: 1; transform: none; }
+    [data-sweep], [data-pulse] { animation: none !important; }
   }
+
+  /* Radar visual + live-status motion (from the product design). */
+  @keyframes tg-sweep { to { transform: rotate(360deg); } }
+  @keyframes tg-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+  [data-sweep] { animation: tg-sweep 6s linear infinite; }
+  [data-pulse] { animation: tg-pulse 2.2s ease-in-out infinite; }
+
+  /* Gradient "badge" avatars (initials) — six tints, cycled deterministically. */
+  .tint { display: flex; align-items: center; justify-content: center; color: #eaf7f1; font-family: var(--font-display); font-weight: 700; }
+  .tint-a { background: linear-gradient(135deg, #17493a, #2fbe8f); }
+  .tint-b { background: linear-gradient(135deg, #5c471a, #d8b15c); color: #1a1405; }
+  .tint-c { background: linear-gradient(135deg, #1e3e5c, #5b9bd5); }
+  .tint-d { background: linear-gradient(135deg, #33285c, #8b79e0); }
+  .tint-e { background: linear-gradient(135deg, #5c2438, #d86b8a); }
+  .tint-f { background: linear-gradient(135deg, #164a4a, #2fbebe); }
+
+  /* Signal/news type tags (from the product design). */
+  .ntag-funding { color: #5fe0ae; background: #12271e; }
+  .ntag-launch  { color: #8fc2ef; background: #122234; }
+  .ntag-policy  { color: #e6c878; background: #241e0f; }
+  .ntag-alert   { color: #f0997a; background: #2a160f; }
 }

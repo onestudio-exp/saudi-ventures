@@ -5,31 +5,12 @@ import { Badge, useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
 import { ChatFab } from "../components/public/ChatFab";
+import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { getEntityBySlug, type Entity } from "../lib/public";
 
-// Logo with initials fallback (same pattern as the directory grid).
+// Gradient initials badge (design system), with the logo layered on when present.
 function EntityLogo({ entity }: { entity: Entity }) {
-  const initials = entity.name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
-  return (
-    <span className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary/10 text-lg font-semibold text-primary ring-1 ring-inset ring-primary/15">
-      <span aria-hidden>{initials}</span>
-      {entity.logo_url && (
-        <img
-          src={entity.logo_url}
-          alt=""
-          className="absolute inset-0 h-full w-full bg-white object-contain"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).style.display = "none";
-          }}
-        />
-      )}
-    </span>
-  );
+  return <BadgeAvatar name={entity.name} logoUrl={entity.logo_url} size={72} radius={18} />;
 }
 
 export function EntityProfile() {
