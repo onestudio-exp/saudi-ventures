@@ -69,6 +69,12 @@ type chatMessage struct {
 	Content string `json:"content"`
 }
 
+// Message is a single chat turn (role + content) for multi-turn Chat calls.
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
 type chatRequest struct {
 	Model       string        `json:"model"`
 	Messages    []chatMessage `json:"messages"`
@@ -89,15 +95,31 @@ type chatResponse struct {
 
 // Complete sends a system+user prompt and returns the assistant content plus
 // token usage. Non-2xx responses or empty choices yield an error that includes a
-// snippet of the response body for debugging.
+// snippet of the response body for debugging. It is a thin wrapper over Chat.
 func (c *Client) Complete(ctx context.Context, system, user string) (content string, usage Usage, err error) {
+	return c.chat(ctx, []chatMessage{
+		{Role: "system", Content: system},
+		{Role: "user", Content: user},
+	}, 0.4)
+}
+
+// Chat sends a multi-turn message list and returns the assistant content plus
+// token usage. Non-2xx responses or empty choices yield an error that includes a
+// snippet of the response body for debugging.
+func (c *Client) Chat(ctx context.Context, messages []Message) (string, Usage, error) {
+	msgs := make([]chatMessage, 0, len(messages))
+	for _, m := range messages {
+		msgs = append(msgs, chatMessage{Role: m.Role, Content: m.Content})
+	}
+	return c.chat(ctx, msgs, 0.5)
+}
+
+// chat is the shared transport used by Complete and Chat.
+func (c *Client) chat(ctx context.Context, messages []chatMessage, temperature float64) (content string, usage Usage, err error) {
 	reqBody := chatRequest{
-		Model: c.model,
-		Messages: []chatMessage{
-			{Role: "system", Content: system},
-			{Role: "user", Content: user},
-		},
-		Temperature: 0.4,
+		Model:       c.model,
+		Messages:    messages,
+		Temperature: temperature,
 	}
 	buf, err := json.Marshal(reqBody)
 	if err != nil {

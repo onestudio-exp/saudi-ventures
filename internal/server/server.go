@@ -37,6 +37,7 @@ func Boot() *app.App {
 	rest.RegisterRoutes(api, a)
 	rest.RegisterAdminIntelRoutes(api, a)
 	rest.RegisterAdminIngestRoutes(api, a)
+	rest.RegisterChatRoutes(api, a)
 
 	gql := handler.NewDefaultServer(graphgen.NewExecutableSchema(graphgen.Config{
 		Resolvers: &resolvers.Resolver{App: a},
@@ -167,5 +168,6 @@ func OpenAPI() ([]byte, error) {
 	rest.RegisterRoutes(api, nil)
 	rest.RegisterAdminIntelRoutes(api, nil)
 	rest.RegisterAdminIngestRoutes(api, nil)
+	rest.RegisterChatRoutes(api, nil)
 	return api.OpenAPI().YAML()
 }

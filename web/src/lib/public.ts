@@ -118,6 +118,41 @@ export async function getCapabilityBySlug(slug: string): Promise<Capability | un
   return all.find((c) => c.slug === slug);
 }
 
+// --- AI chat (Cortex) ---------------------------------------------------
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+// Persona per agent slug (display side; mirrors the backend persona map).
+export const AGENT_PERSONAS: Record<string, { name: string; character: string }> = {
+  "news-radar": { name: "Raqib", character: "a sharp, fast-moving news scout who surfaces what just happened in Saudi venture and why it matters" },
+  "list-of-startups": { name: "Rowad", character: "an encyclopedic guide to Saudi startups — who they are, what they build, and where they stand" },
+  "investment": { name: "Mustathmir", character: "a measured investment analyst tracking Saudi VCs, funds, and where capital flows" },
+  "funding-deals": { name: "Safqa", character: "a deal-savvy tracker of Saudi funding rounds, M&A, and exits" },
+  "sectors-market": { name: "Sooq", character: "a market trend-spotter reading sector momentum across the Saudi economy" },
+};
+
+// chat sends the conversation (+ agent/entity context) to Cortex and returns the reply.
+export async function chat(
+  messages: ChatMessage[],
+  ctx: { agent?: string; entity?: string },
+): Promise<string> {
+  const r = await fetch(`${API}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...ctx, messages }),
+  });
+  if (!r.ok) {
+    if (r.status === 503) throw new Error("AI chat is not configured on this server.");
+    const d = await r.json().catch(() => ({}));
+    throw new Error(d.detail || d.error || `chat failed (${r.status})`);
+  }
+  const d = (await r.json()) as { reply: string };
+  return d.reply;
+}
+
 export type LeadSource = "claim" | "newsletter" | "agent_cta";
 
 export interface LeadInput {

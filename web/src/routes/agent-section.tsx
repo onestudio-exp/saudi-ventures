@@ -5,7 +5,8 @@ import { useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
 import { Markdown } from "../components/public/Markdown";
-import { getAgentBySlug, listNarratives, type Agent, type Narrative } from "../lib/public";
+import { AgentChat } from "../components/public/AgentChat";
+import { getAgentBySlug, listNarratives, AGENT_PERSONAS, type Agent, type Narrative } from "../lib/public";
 
 // Agent module -> lucide component.
 const ICONS: Record<string, typeof Layers> = {
@@ -33,6 +34,7 @@ export function AgentSection() {
   }, [slug]);
 
   const Icon = ICONS[agent?.module ?? ""] ?? Sparkles;
+  const persona = AGENT_PERSONAS[slug];
 
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
@@ -53,6 +55,11 @@ export function AgentSection() {
               </span>
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">{agent.name}</h1>
+                {persona && (
+                  <p className="mt-1 text-sm font-medium text-primary">
+                    {tx("Meet", "تعرّف على")} {persona.name} — {persona.character}
+                  </p>
+                )}
                 {agent.tagline && <p className="mt-2 max-w-2xl text-muted-foreground">{agent.tagline}</p>}
               </div>
             </header>
@@ -74,6 +81,17 @@ export function AgentSection() {
                 {tx("Intelligence brief is being generated…", "يجري توليد موجز الذكاء…")}
               </p>
             )}
+
+            {/* Chat with the agent's persona (Cortex, grounded in the dataset + this agent's brief) */}
+            <AgentChat
+              agent={slug}
+              speaker={persona?.name ?? agent.name}
+              suggestions={[
+                tx("What changed this week?", "ما الذي تغيّر هذا الأسبوع؟"),
+                tx("Who are the key players?", "من هم اللاعبون الرئيسيون؟"),
+                tx("What should I watch next?", "ما الذي ينبغي أن أراقبه تاليًا؟"),
+              ]}
+            />
 
             {/* contextual Agent CTA → stored Lead (source_type=agent_cta, source_agent=slug) */}
             <section className="mt-10 rounded-2xl border border-primary/30 bg-primary/5 p-6">

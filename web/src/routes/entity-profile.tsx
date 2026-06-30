@@ -4,6 +4,7 @@ import { ArrowRight, ArrowLeft, Globe, MapPin, Calendar } from "lucide-react";
 import { Badge, useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
+import { AgentChat } from "../components/public/AgentChat";
 import { getEntityBySlug, type Entity } from "../lib/public";
 
 // Logo with initials fallback (same pattern as the directory grid).
@@ -134,6 +135,17 @@ export function EntityProfile() {
                 </section>
               );
             })()}
+
+            {/* Ask the AI about this entity — per-entity intelligence on demand (Cortex) */}
+            <AgentChat
+              entity={slug}
+              speaker={tx("the AI analyst", "محلّل الذكاء الاصطناعي")}
+              suggestions={[
+                tx(`Give me a brief on ${entity.name}.`, `أعطني نبذة عن ${entity.name}.`),
+                tx("What do they do?", "ماذا يفعلون؟"),
+                tx("How do they fit the Saudi ecosystem?", "كيف يندمجون في المنظومة السعودية؟"),
+              ]}
+            />
 
             {/* Claim your profile — stored Lead (source_type=claim) */}
             <section className="surface-card mt-10 rounded-2xl p-6">
