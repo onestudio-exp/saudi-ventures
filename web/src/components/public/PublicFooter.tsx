@@ -9,7 +9,7 @@ export function PublicFooter() {
     <footer className="border-t border-border" dir={ar ? "rtl" : "ltr"}>
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-9">
         <span className="mono text-[11px] text-muted-foreground/70">
-          SAUDI VENTURES·SA — SAUDI VENTURE INTELLIGENCE · BY ID8MEDIA
+          SAUDI VENTURES·SA — SAUDI VENTURE INTELLIGENCE · BY ONE STUDIO
         </span>
         <span className="mono text-[11px] text-muted-foreground/70">
           v0.1 · Data via Scout · Narratives via Cortex

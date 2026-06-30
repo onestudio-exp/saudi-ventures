@@ -149,4 +149,9 @@ body { margin: 0; font-family: var(--font-body); }
   .ntag-launch  { color: #8fc2ef; background: #122234; }
   .ntag-policy  { color: #e6c878; background: #241e0f; }
   .ntag-alert   { color: #f0997a; background: #2a160f; }
+
+  /* Alert severity chips (from the product design). */
+  .sev-high { color: #f0997a; background: #2a160f; border-color: #5c2a1a; }
+  .sev-med  { color: #e6c878; background: #241e0f; border-color: #5c471a; }
+  .sev-low  { color: #8b95a6; background: #12171f; border-color: #232b38; }
 }

@@ -80,7 +80,7 @@ export function Home() {
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 sm:py-20 lg:grid-cols-[1.15fr_0.85fr]">
           <div>
             <p className="reveal reveal-1 kicker mb-6 inline-flex items-center gap-2 rounded-full border border-[#1C3A2C] bg-[#12271E] px-3 py-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {tx("By ID8Media · Powered by Cortex", "من ID8Media · مدعوم بكورتكس")}
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {tx("By One Studio · Powered by Cortex", "من ون ستوديو · مدعوم بكورتكس")}
             </p>
             <h1 className="font-display reveal reveal-2 text-[2.6rem] font-semibold leading-[1.04] sm:text-[3.25rem]">
               {tx("The deepest map of the ", "أعمق خريطة لمنظومة ")}
