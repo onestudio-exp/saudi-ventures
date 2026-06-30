@@ -35,6 +35,7 @@ func Boot() *app.App {
 	api := humachi.New(k.Router, huma.DefaultConfig("SaudiVentures API", "0.1.0"))
 	rest.RegisterRoutes(api, a)
 	rest.RegisterAdminIntelRoutes(api, a)
+	rest.RegisterAdminIngestRoutes(api, a)
 
 	gql := handler.NewDefaultServer(graphgen.NewExecutableSchema(graphgen.Config{
 		Resolvers: &resolvers.Resolver{App: a},
@@ -160,5 +161,6 @@ func OpenAPI() ([]byte, error) {
 	api := humachi.New(router, huma.DefaultConfig("SaudiVentures API", "0.1.0"))
 	rest.RegisterRoutes(api, nil)
 	rest.RegisterAdminIntelRoutes(api, nil)
+	rest.RegisterAdminIngestRoutes(api, nil)
 	return api.OpenAPI().YAML()
 }
