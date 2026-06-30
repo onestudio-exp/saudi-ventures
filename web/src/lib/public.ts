@@ -95,7 +95,7 @@ export async function getAgentBySlug(slug: string): Promise<Agent | undefined> {
   return all.find((a) => a.slug === slug);
 }
 
-export const listEntities = () => getJSON<Entity[]>(`/api/entities?limit=200`);
+export const listEntities = (limit = 2000) => getJSON<Entity[]>(`/api/entities?limit=${limit}`);
 export const listCapabilities = () => getJSON<Capability[]>(`/api/capabilities?limit=100`);
 export const listArticles = () => getJSON<Article[]>(`/api/articles?limit=100`);
 export const listNarratives = () => getJSON<Narrative[]>(`/api/narratives?limit=100`);

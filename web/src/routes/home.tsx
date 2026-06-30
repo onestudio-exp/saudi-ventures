@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Radar, Rocket, TrendingUp, Handshake, Layers, Sparkles, ArrowRight, ArrowLeft,
 } from "lucide-react";
-import { useT } from "@togo-framework/ui";
+import { StatCard, useT } from "@togo-framework/ui";
 import { APP_NAME } from "../lib/api";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
-import { listAgents, type Agent } from "../lib/public";
+import { listAgents, listEntities, type Agent, type Entity } from "../lib/public";
 
 // Agent module -> lucide component.
 const ICONS: Record<string, typeof Layers> = {
@@ -21,6 +21,7 @@ export function Home() {
   const Arrow = ar ? ArrowLeft : ArrowRight;
 
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [entities, setEntities] = useState<Entity[]>([]);
 
   useEffect(() => {
     listAgents()
@@ -32,7 +33,20 @@ export function Home() {
         ),
       )
       .catch(() => {});
+    listEntities(2000).then(setEntities).catch(() => {});
   }, []);
+
+  // Headline counts for the "by the numbers" strip.
+  const stats = useMemo(() => {
+    const by = (kind: string) => entities.filter((e) => e.kind === kind).length;
+    return [
+      { label: tx("Entities", "كيان"), value: entities.length },
+      { label: tx("Startups", "شركات ناشئة"), value: by("Startup") },
+      { label: tx("VCs", "صناديق استثمار"), value: by("VC") },
+      { label: tx("Accelerators", "مسرّعات"), value: by("Accelerator") },
+      { label: tx("Incubators", "حاضنات"), value: by("Incubator") },
+    ];
+  }, [entities, ar]);
 
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
@@ -56,6 +70,22 @@ export function Home() {
           </p>
         </div>
       </section>
+
+      {/* by the numbers */}
+      {entities.length > 0 && (
+        <section className="mx-auto max-w-6xl px-6 pb-8">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            {tx("By the numbers", "بالأرقام")}
+          </h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {stats.map((s) => (
+              <div key={s.label} className="surface-card rounded-2xl p-5">
+                <StatCard label={s.label} value={s.value.toLocaleString()} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* agents */}
       <section className="mx-auto max-w-6xl px-6 pb-4">
