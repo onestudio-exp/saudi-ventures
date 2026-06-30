@@ -5,6 +5,7 @@ import { sessionMe } from "./lib/auth";
 import { Home } from "./routes/home";
 import { Entities } from "./routes/entities";
 import { EntityProfile } from "./routes/entity-profile";
+import { CapabilitySection } from "./routes/capability-section";
 import { Login } from "./routes/login";
 import { Register } from "./routes/register";
 import { Reset } from "./routes/reset";
@@ -29,6 +30,7 @@ const redirectIfAuthed = async () => {
 const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: "/", component: Home });
 const entitiesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/entities", component: Entities });
 const entityProfileRoute = createRoute({ getParentRoute: () => rootRoute, path: "/entities/$slug", component: EntityProfile });
+const capabilityRoute = createRoute({ getParentRoute: () => rootRoute, path: "/modules/$slug", component: CapabilitySection });
 const loginRoute = createRoute({ getParentRoute: () => rootRoute, path: "/login", component: Login, beforeLoad: redirectIfAuthed });
 const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: "/register", component: Register, beforeLoad: redirectIfAuthed });
 const resetRoute = createRoute({ getParentRoute: () => rootRoute, path: "/reset", component: Reset });
@@ -53,7 +55,7 @@ const resourceRoute = createRoute({ getParentRoute: () => appRoute, path: "/admi
 const profileRoute = createRoute({ getParentRoute: () => appRoute, path: "/profile", component: Profile });
 
 const routeTree = rootRoute.addChildren([
-  indexRoute, entitiesRoute, entityProfileRoute, loginRoute, registerRoute, resetRoute,
+  indexRoute, entitiesRoute, entityProfileRoute, capabilityRoute, loginRoute, registerRoute, resetRoute,
   appRoute.addChildren([dashboardRoute, adminRoute, resourceRoute, profileRoute]),
 ]);
 

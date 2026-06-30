@@ -46,6 +46,11 @@ export async function getEntityBySlug(slug: string): Promise<Entity | undefined>
   return all.find((e) => e.slug === slug);
 }
 
+export async function getCapabilityBySlug(slug: string): Promise<Capability | undefined> {
+  const all = await listCapabilities();
+  return all.find((c) => c.slug === slug);
+}
+
 export type LeadSource = "claim" | "newsletter" | "agent_cta";
 
 export interface LeadInput {
