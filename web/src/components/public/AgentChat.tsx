@@ -12,11 +12,15 @@ interface Props {
   speaker: string;
   // Quick-start prompts shown when the thread is empty.
   suggestions?: string[];
+  // Override the outer wrapper classes (e.g. to embed inside a floating drawer).
+  className?: string;
+  // Hide the internal title bar (when a parent, e.g. ChatFab, provides its own).
+  hideHeader?: boolean;
 }
 
 // AgentChat is a Cortex-backed chat widget. It posts the running thread plus the
 // agent/entity context to POST /api/chat and renders the assistant reply as markdown.
-export function AgentChat({ agent, entity, speaker, suggestions = [] }: Props) {
+export function AgentChat({ agent, entity, speaker, suggestions = [], className, hideHeader }: Props) {
   const { language } = useT();
   const ar = language === "ar";
   const tx = (en: string, a: string) => (ar ? a : en);
@@ -50,16 +54,18 @@ export function AgentChat({ agent, entity, speaker, suggestions = [] }: Props) {
   }
 
   return (
-    <section className="surface-card mt-8 overflow-hidden rounded-2xl">
-      <div className="flex items-center gap-2 border-b border-border/60 px-5 py-3">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Sparkles className="h-4 w-4" />
-        </span>
-        <h2 className="text-sm font-semibold">
-          {tx("Chat with", "تحدّث مع")} {speaker}
-        </h2>
-        <span className="ms-auto text-xs text-muted-foreground/60">AI</span>
-      </div>
+    <section className={className ?? "surface-card mt-8 overflow-hidden rounded-2xl"}>
+      {!hideHeader && (
+        <div className="flex items-center gap-2 border-b border-border/60 px-5 py-3">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Sparkles className="h-4 w-4" />
+          </span>
+          <h2 className="text-sm font-semibold">
+            {tx("Chat with", "تحدّث مع")} {speaker}
+          </h2>
+          <span className="ms-auto text-xs text-muted-foreground/60">AI</span>
+        </div>
+      )}
 
       <div ref={scrollRef} className="max-h-[420px] space-y-4 overflow-y-auto px-5 py-4">
         {messages.length === 0 && (

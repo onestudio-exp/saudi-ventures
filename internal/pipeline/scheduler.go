@@ -38,6 +38,14 @@ func StartScheduler(ctx context.Context, a *app.App) {
 	)
 
 	go func() {
+		// Optional immediate cycle at boot (INGEST_ON_BOOT) so live data appears at
+		// once instead of waiting for the first tick. Runs ingest+scan then a digest.
+		if truthy(os.Getenv("INGEST_ON_BOOT")) {
+			a.Log.Info("ingest scheduler: running boot cycle")
+			runIngestCycle(ctx, a)
+			runDigestCycle(ctx, a)
+		}
+
 		fast := time.NewTicker(ingestEvery)
 		slow := time.NewTicker(digestEvery)
 		defer fast.Stop()

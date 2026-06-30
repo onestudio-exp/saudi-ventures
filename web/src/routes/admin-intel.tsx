@@ -83,7 +83,7 @@ export function AdminIntel() {
     <div className="mx-auto max-w-4xl p-8" dir={ar ? "rtl" : "ltr"}>
       <PageHeader
         title={tx("Intelligence", "الذكاء")}
-        description={tx("Run the Sentra-powered pipeline — Scout ingest → Cortex narratives & alerts.", "شغّل خط الإنتاج المدعوم بسنترا — استيراد سكاوت ← ملخّصات وتنبيهات كورتكس.")}
+        description={tx("Run the intelligence pipeline — Scout ingest → Cortex narratives & alerts.", "شغّل خط إنتاج الذكاء — استيراد سكاوت ← ملخّصات وتنبيهات كورتكس.")}
       />
       <div className="grid gap-4 sm:grid-cols-3">
         {cards.map((c) => (

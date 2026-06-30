@@ -74,7 +74,9 @@ export const router = createRouter({
   defaultPreload: "intent",
   // Branded full-screen loader while a route's beforeLoad (e.g. the auth check) runs.
   // 150ms delay so cached/instant navigations don't flash it.
-  defaultPendingComponent: () => <SentraLoading />,
+  defaultPendingComponent: () => (
+    <SentraLoading iconName="sparkles" productNameEn="Saudi Ventures" productNameAr="ريادة الأعمال السعودية" />
+  ),
   defaultPendingMs: 150,
   defaultPendingMinMs: 300,
 });

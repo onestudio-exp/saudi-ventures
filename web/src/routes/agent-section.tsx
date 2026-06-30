@@ -5,7 +5,7 @@ import { useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
 import { Markdown } from "../components/public/Markdown";
-import { AgentChat } from "../components/public/AgentChat";
+import { ChatFab } from "../components/public/ChatFab";
 import { getAgentBySlug, listNarratives, AGENT_PERSONAS, type Agent, type Narrative } from "../lib/public";
 
 // Agent module -> lucide component.
@@ -82,8 +82,8 @@ export function AgentSection() {
               </p>
             )}
 
-            {/* Chat with the agent's persona (Cortex, grounded in the dataset + this agent's brief) */}
-            <AgentChat
+            {/* Floating chat with the agent's persona (Cortex, grounded in the dataset + this agent's brief) */}
+            <ChatFab
               agent={slug}
               speaker={persona?.name ?? agent.name}
               suggestions={[

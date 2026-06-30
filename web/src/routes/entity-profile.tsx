@@ -4,7 +4,7 @@ import { ArrowRight, ArrowLeft, Globe, MapPin, Calendar } from "lucide-react";
 import { Badge, useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
-import { AgentChat } from "../components/public/AgentChat";
+import { ChatFab } from "../components/public/ChatFab";
 import { getEntityBySlug, type Entity } from "../lib/public";
 
 // Logo with initials fallback (same pattern as the directory grid).
@@ -136,10 +136,10 @@ export function EntityProfile() {
               );
             })()}
 
-            {/* Ask the AI about this entity — per-entity intelligence on demand (Cortex) */}
-            <AgentChat
+            {/* Floating "ask the AI about this entity" — per-entity intelligence on demand (Cortex) */}
+            <ChatFab
               entity={slug}
-              speaker={tx("the AI analyst", "محلّل الذكاء الاصطناعي")}
+              speaker={tx(`${entity.name} · AI analyst`, `${entity.name} · محلّل الذكاء`)}
               suggestions={[
                 tx(`Give me a brief on ${entity.name}.`, `أعطني نبذة عن ${entity.name}.`),
                 tx("What do they do?", "ماذا يفعلون؟"),

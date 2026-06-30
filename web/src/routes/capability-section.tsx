@@ -94,8 +94,8 @@ export function CapabilitySection() {
               ) : (
                 <div className="mt-10 rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
                   {tx(
-                    "Live news radar is being wired to the Sentra harvester. Want early access?",
-                    "يجري ربط رادار الأخبار بمحرّك سنترا. هل تريد وصولًا مبكرًا؟",
+                    "Live news radar is being wired to Scout. Want early access?",
+                    "يجري ربط رادار الأخبار بسكاوت. هل تريد وصولًا مبكرًا؟",
                   )}
                 </div>
               )
