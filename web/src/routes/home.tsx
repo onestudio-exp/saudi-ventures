@@ -1,22 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import {
-  Radar, Rocket, TrendingUp, Handshake, Layers, Sparkles, ArrowRight, ArrowLeft,
-  Bell, Search, Mail, Lock,
-} from "lucide-react";
+import { Sparkles, ArrowRight, ArrowLeft, Mail } from "lucide-react";
 import { useT } from "@togo-framework/ui";
-import { APP_NAME } from "../lib/api";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
 import { SubscribeBar } from "../components/public/SubscribeBar";
-import { Markdown } from "../components/public/Markdown";
 import { RadarPanel, type RadarSignal } from "../components/public/RadarPanel";
-import { listAgents, listAlerts, listEntities, listNarratives, type Agent, type Entity, type Narrative } from "../lib/public";
-
-// Agent module -> lucide component.
-const ICONS: Record<string, typeof Layers> = {
-  news: Radar, startups: Rocket, investment: TrendingUp, funding: Handshake, sectors: Layers,
-};
+import { BadgeAvatar } from "../components/public/BadgeAvatar";
+import { PublicFooter } from "../components/public/PublicFooter";
+import { listAgents, listAlerts, listEntities, listNarratives, AGENT_PERSONAS, type Agent, type Entity, type Narrative } from "../lib/public";
 
 export function Home() {
   const { language } = useT();
@@ -74,18 +66,6 @@ export function Home() {
         { label: tx("Cortex narratives", "روايات كورتكس"), tag: "BRIEF", type: "policy" },
         { label: tx("Classified alerts", "تنبيهات مصنّفة"), tag: "ALERT", type: "alert" },
       ];
-
-  // Headline counts for the "by the numbers" strip.
-  const stats = useMemo(() => {
-    const by = (kind: string) => entities.filter((e) => e.kind === kind).length;
-    return [
-      { label: tx("Entities", "كيان"), value: entities.length },
-      { label: tx("Startups", "شركات ناشئة"), value: by("Startup") },
-      { label: tx("VCs", "صناديق استثمار"), value: by("VC") },
-      { label: tx("Accelerators", "مسرّعات"), value: by("Accelerator") },
-      { label: tx("Incubators", "حاضنات"), value: by("Incubator") },
-    ];
-  }, [entities, ar]);
 
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
@@ -146,140 +126,106 @@ export function Home() {
         </div>
       </section>
 
-      {/* by the numbers — proof of scale */}
-      {entities.length > 0 && (
-        <section className="mx-auto max-w-6xl px-6 pb-12">
-          <p className="kicker mb-4">{tx("By the numbers", "بالأرقام")}</p>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            {stats.map((s) => (
-              <div key={s.label} className="surface-card rounded-2xl p-5">
-                <div className="font-mono tabular text-3xl font-semibold text-foreground">{s.value.toLocaleString()}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* primary subscribe CTA — the page's main conversion moment */}
-      <section id="subscribe" className="mx-auto max-w-4xl scroll-mt-20 px-6 pb-12">
-        <div className="relative overflow-hidden rounded-3xl border border-primary/30 p-8 sm:p-10"
-          style={{ background: "linear-gradient(135deg, color-mix(in srgb, var(--primary) 12%, transparent), transparent 60%)" }}>
-          <div className="grid items-center gap-8 lg:grid-cols-2">
-            <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> {tx("Weekly intelligence", "ذكاء أسبوعي")}
-              </span>
-              <h2 className="font-display mt-4 text-3xl sm:text-4xl">
-                {tx("Join the Saudi venture insiders.", "انضم إلى المطّلعين على ريادة الأعمال السعودية.")}
-              </h2>
-              <p className="mt-3 text-sm text-muted-foreground">
-                {tx(
-                  "Founders, investors, and operators read our weekly brief to stay ahead. One email, no noise — the signal that matters.",
-                  "يقرأ المؤسسون والمستثمرون والمشغّلون موجزنا الأسبوعي ليبقوا في المقدمة. بريد واحد بلا ضجيج — الإشارة التي تهم.",
-                )}
-              </p>
-            </div>
-            <div className="surface-card rounded-2xl p-6">
-              <LeadForm sourceType="newsletter" sourcePage="home" submitLabel={tx("Subscribe free", "اشترك مجانًا")} />
-              <p className="mt-3 text-xs text-muted-foreground/70">
-                {tx("Free · No spam · Unsubscribe anytime", "مجاني · بلا إزعاج · إلغاء الاشتراك في أي وقت")}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* what you get */}
-      <section className="mx-auto max-w-6xl px-6 pb-12">
-        <p className="kicker mb-4">{tx("What you get", "ما الذي تحصل عليه")}</p>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {[
-            { icon: Sparkles, t: tx("Weekly AI Brief", "موجز أسبوعي بالذكاء"), d: tx(`An AI-written digest of what moved in Saudi venture — grounded in ${count} entities.`, `موجز مكتوب بالذكاء الاصطناعي لما تحرّك في ريادة الأعمال السعودية — مبني على ${count} كيان.`) },
-            { icon: Bell, t: tx("Real-time Alerts", "تنبيهات فورية"), d: tx("Funding rounds, new entrants, and market shifts — the moment they surface.", "جولات تمويل، لاعبون جدد، وتحوّلات السوق — لحظة ظهورها.") },
-            { icon: Search, t: tx("The Full Directory", "الدليل الكامل"), d: tx("Search every startup, VC, accelerator and more — with deep, structured profiles.", "ابحث في كل شركة ناشئة وصندوق ومسرّعة وغيرها — بملفات عميقة ومنظّمة.") },
-          ].map((c) => (
-            <div key={c.t} className="surface-card rounded-2xl p-6">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
-                <c.icon className="h-5 w-5" />
-              </span>
-              <h3 className="mt-4 font-semibold">{c.t}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{c.d}</p>
-            </div>
+      {/* sourced from — trust strip */}
+      <section className="mx-auto max-w-6xl px-6 pb-11">
+        <div className="flex flex-wrap items-center gap-x-9 gap-y-3 border-y border-border py-5">
+          <span className="kicker">{tx("Sourced from", "المصادر")}</span>
+          {["STV", "Sanabil", "Wa'ed Ventures", "Raed VC", "Impact46", "Merak Capital"].map((n) => (
+            <span key={n} className="font-display text-base font-medium text-muted-foreground/70">{n}</span>
           ))}
         </div>
       </section>
 
-      {/* AI ecosystem brief — a taste of what subscribers get weekly */}
-      {overview && (
-        <section className="mx-auto max-w-4xl px-6 pb-12">
+      {/* directory preview */}
+      <section className="mx-auto max-w-6xl px-6 pb-6">
+        <div className="mb-6 flex items-end justify-between">
+          <div>
+            <h2 className="font-display text-2xl font-semibold">{tx("The directory", "الدليل")}</h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">{tx("Every company, profiled and kept current.", "كل شركة، بملف مُحدّث باستمرار.")}</p>
+          </div>
+          <span className="mono text-xs text-muted-foreground/70">{count} {tx("entities", "كيان")}</span>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {entities.slice(0, 6).map((e) => (
+            <Link key={e.slug} to="/entities/$slug" params={{ slug: e.slug }}
+              className="ecard group rounded-2xl border border-border p-5" style={{ background: "#10151D" }}>
+              <div className="mb-4 flex items-center justify-between">
+                <BadgeAvatar name={e.name} logoUrl={e.logo_url} size={46} radius={11} />
+                {e.claimed && <span className="mono rounded-full border border-[#1C3A2C] bg-[#12271E] px-2.5 py-1 text-[10px] text-[#5FE0AE]">✓ {tx("CLAIMED", "موثّق")}</span>}
+              </div>
+              <div className="font-display truncate text-lg font-semibold">{e.name}</div>
+              {(e.description || e.sector) && <div className="mt-1 line-clamp-2 min-h-[2.4rem] text-[13px] leading-relaxed text-muted-foreground">{e.description || e.sector}</div>}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="mono rounded-md border border-border px-2 py-0.5 text-[10.5px] text-muted-foreground" style={{ background: "#161D26" }}>{e.kind}</span>
+                {e.headquarters && <span className="mono text-[10.5px] text-muted-foreground/70">{e.headquarters}</span>}
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-6">
+          <Link to="/entities" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+            {tx("Browse the full directory", "تصفّح الدليل كاملًا")} <Arrow className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* agents teaser — module specialists */}
+      <section className="mx-auto max-w-6xl px-6 pb-6 pt-8">
+        <div className="rounded-[20px] border border-border p-8 sm:p-10" style={{ background: "linear-gradient(180deg,#0E141C,#0B0F16)" }}>
+          <div className="mb-7 flex items-end justify-between">
+            <div>
+              <p className="kicker mb-2.5">{tx("Module Agents", "وكلاء الوحدات")}</p>
+              <h2 className="font-display text-2xl font-semibold">{tx("A specialist for every corner of the market", "متخصّص لكل زاوية من السوق")}</h2>
+              <p className="mt-1.5 text-sm text-muted-foreground">{tx("Each Agent owns a module — watching, curating, and briefing you in Arabic and English.", "كل وكيل يملك وحدة — يراقب وينسّق ويوجز لك بالعربية والإنجليزية.")}</p>
+            </div>
+          </div>
+          <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+            {agents.map((a) => {
+              const persona = AGENT_PERSONAS[a.slug];
+              return (
+                <Link key={a.slug} to="/agents/$slug" params={{ slug: a.slug }}
+                  className="ecard rounded-2xl border border-border p-5" style={{ background: "#10151D" }}>
+                  <BadgeAvatar name={persona?.name ?? a.name} size={44} radius={12} />
+                  <div className="font-display mt-3.5 text-base font-semibold">{persona?.name ?? a.name}</div>
+                  <div className="mono mt-0.5 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{a.name}</div>
+                  {a.tagline && <p className="mt-2.5 text-[12.5px] leading-relaxed text-muted-foreground">{a.tagline}</p>}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* newsletter band — the weekly brief (subscribe) */}
+      <section id="subscribe" className="mx-auto max-w-6xl scroll-mt-20 px-6 pb-16 pt-8">
+        <div className="grid items-center gap-11 rounded-[20px] border border-[#1C3A2C] p-8 sm:p-11 lg:grid-cols-2"
+          style={{ background: "linear-gradient(120deg,#0C1D16,#0B0F16 70%)" }}>
+          <div>
+            {overview && (
+              <span className="kicker mb-3 inline-flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5" /> {tx("This week's brief is live", "موجز هذا الأسبوع جاهز")}
+              </span>
+            )}
+            <h2 className="font-display text-[26px] font-semibold sm:text-3xl">{tx("The weekly Saudi venture brief", "الموجز الأسبوعي لريادة الأعمال السعودية")}</h2>
+            <p className="mt-2.5 max-w-[46ch] text-sm leading-relaxed text-muted-foreground">
+              {tx("Every funding round, policy shift, and market signal — synthesized into one read. Delivered to your inbox and WhatsApp.", "كل جولة تمويل وتحوّل تنظيمي وإشارة سوق — ملخّصة في قراءة واحدة. تصلك عبر البريد وواتساب.")}
+            </p>
+            {overview && (
+              <Link to="/narratives/$id" params={{ id: overview.id }} className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:underline">
+                {tx("Preview this week's brief", "عاين موجز هذا الأسبوع")} <Arrow className="h-4 w-4" />
+              </Link>
+            )}
+          </div>
           <div className="surface-card rounded-2xl p-6">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="kicker">{tx("This week's brief — preview", "موجز هذا الأسبوع — معاينة")}</span>
-              {overview.model && <span className="ms-auto font-mono text-xs text-muted-foreground/60">{overview.model}</span>}
-            </div>
-            <div className="relative mt-3">
-              <Markdown text={overview.body_md.length > 700 ? overview.body_md.slice(0, 700) + "…" : overview.body_md} />
-              {/* fade + unlock — the full brief lands in your inbox when you subscribe */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-card to-transparent" />
-            </div>
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <a href="#subscribe"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">
-                <Lock className="h-3.5 w-3.5" /> {tx("Get the full brief weekly", "احصل على الموجز كاملًا أسبوعيًا")}
-              </a>
-              <Link to="/narratives/$id" params={{ id: overview.id }} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-                {tx("Read this one in full", "اقرأ هذا كاملًا")} <Arrow className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* agents */}
-      <section className="mx-auto max-w-6xl px-6 pb-4">
-        <p className="kicker mb-2">{tx("Your AI agents", "وكلاؤك بالذكاء الاصطناعي")}</p>
-        <p className="mb-5 max-w-xl text-sm text-muted-foreground">{tx("Five specialists watching the ecosystem for you — chat with any of them.", "خمسة متخصّصين يراقبون المنظومة نيابةً عنك — تحدّث مع أيٍّ منهم.")}</p>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {agents.map((a) => {
-            const Icon = ICONS[a.module] ?? Sparkles;
-            return (
-              <Link key={a.slug} to="/agents/$slug" params={{ slug: a.slug }}
-                className="group block rounded-2xl border border-border bg-card p-5 text-start transition-colors hover:border-primary/40 hover:bg-accent/40">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <span className="font-semibold">{a.name}</span>
-                  <Arrow className="ms-auto h-4 w-4 text-muted-foreground/50 transition-all group-hover:text-primary" />
-                </div>
-                {a.tagline && <p className="mt-3 text-sm text-muted-foreground">{a.tagline}</p>}
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* directory — minimal link */}
-      <section className="mx-auto max-w-6xl px-6 py-10">
-        <Link to="/entities" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-          {tx("Browse the ecosystem directory", "تصفّح دليل المنظومة")} <Arrow className="h-4 w-4" />
-        </Link>
-      </section>
-
-      {/* closing subscribe — for those who scrolled the whole way */}
-      <section className="border-t border-border bg-card/40">
-        <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-          <h2 className="font-display text-3xl sm:text-4xl">{tx("Don't miss the next shift.", "لا تفوّت التحوّل القادم.")}</h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
-            {tx("Get the weekly Saudi venture brief and real-time alerts by email and WhatsApp.", "احصل على موجز ريادة الأعمال السعودية الأسبوعي والتنبيهات الفورية عبر البريد وواتساب.")}
-          </p>
-          <div className="mx-auto mt-6 max-w-xl text-start">
-            <LeadForm sourceType="newsletter" sourcePage="home-footer" submitLabel={tx("Subscribe free", "اشترك مجانًا")} />
+            <LeadForm sourceType="newsletter" sourcePage="home" submitLabel={tx("Subscribe to the brief", "اشترك في الموجز")} />
+            <p className="mono mt-3 text-[11px] text-muted-foreground/70">
+              {tx("Email + WhatsApp · no spam · unsubscribe anytime", "بريد + واتساب · بلا إزعاج · إلغاء في أي وقت")}
+            </p>
           </div>
         </div>
       </section>
+
+      <PublicFooter />
     </main>
   );
 }
