@@ -4,6 +4,7 @@ import { MapPin, Search } from "lucide-react";
 import { Badge, Input, useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
+import { SkeletonCard } from "../components/public/Skeleton";
 import { listEntities, displayName, type Entity } from "../lib/public";
 import { useTranslated } from "../lib/translate";
 
@@ -113,7 +114,9 @@ export function Entities() {
         )}
 
         {loading ? (
-          <p className="mt-10 text-sm text-muted-foreground">{tx("Loading…", "جارٍ التحميل…")}</p>
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 9 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
         ) : (
           <>
             <p className="mt-6 text-xs text-muted-foreground">

@@ -5,6 +5,7 @@ import { useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
 import { Markdown } from "../components/public/Markdown";
+import { Skeleton } from "../components/public/Skeleton";
 import { ChatFab } from "../components/public/ChatFab";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { getAgentBySlug, listNarratives, AGENT_PERSONAS, moduleLabel, type Agent, type Narrative } from "../lib/public";
@@ -107,9 +108,14 @@ export function AgentSection() {
                   <div className="mt-3"><Markdown text={briefMd} /></div>
                 </section>
               ) : (
-                <p className="mt-3 rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                  {tx("Intelligence brief is being generated…", "يجري توليد موجز الذكاء…")}
-                </p>
+                <section className="surface-card mt-3 rounded-2xl p-6">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <span className="kicker">{tx("AI Intelligence Brief", "موجز الذكاء الاصطناعي")}</span>
+                    <span data-pulse className="ms-auto h-1.5 w-1.5 rounded-full bg-primary" />
+                  </div>
+                  <div className="mt-3"><Skeleton lines={6} /></div>
+                </section>
               )}
             </div>
 

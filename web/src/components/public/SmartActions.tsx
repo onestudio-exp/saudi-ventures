@@ -3,6 +3,7 @@ import { Sparkles, Wand2 } from "lucide-react";
 import { useT } from "@togo-framework/ui";
 import { chat } from "../../lib/public";
 import { Markdown } from "./Markdown";
+import { Skeleton } from "./Skeleton";
 
 export interface SmartAction {
   label: string;
@@ -68,15 +69,7 @@ export function SmartActions({
 
       {active && (
         <div className="mt-3 rounded-xl border border-border p-4" style={{ background: "hsl(var(--muted) / 0.5)" }}>
-          {busy ? (
-            <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.2s]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.1s]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary" />
-            </span>
-          ) : (
-            <Markdown text={result} />
-          )}
+          {busy ? <Skeleton lines={3} /> : <Markdown text={result} />}
         </div>
       )}
     </div>
