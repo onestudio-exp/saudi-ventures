@@ -90,7 +90,6 @@ export function AgentSection() {
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
                     <span className="kicker">{tx("AI Intelligence Brief", "موجز الذكاء الاصطناعي")}</span>
-                    {brief.model && <span className="ms-auto font-mono text-xs text-muted-foreground/60">{brief.model}</span>}
                   </div>
                   <div className="mt-3"><Markdown text={brief.body_md} /></div>
                 </section>
