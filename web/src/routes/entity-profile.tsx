@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "@tanstack/react-router";
-import { ArrowRight, ArrowLeft, Globe, ShieldCheck } from "lucide-react";
+import { ArrowRight, ArrowLeft, Globe, ShieldCheck, Sparkles } from "lucide-react";
 import { useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
 import { ChatFab } from "../components/public/ChatFab";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
-import { getEntityBySlug, listEntities, AGENT_PERSONAS, type Entity } from "../lib/public";
+import { Markdown } from "../components/public/Markdown";
+import { getEntityBySlug, listEntities, entityBrief, AGENT_PERSONAS, type Entity } from "../lib/public";
 import { useTranslated } from "../lib/translate";
 
 // Which persona "watches" an entity, by kind — always the news radar plus one specialist.
@@ -28,10 +29,24 @@ export function EntityProfile() {
 
   const [entity, setEntity] = useState<Entity | null | undefined>(undefined);
   const [similar, setSimilar] = useState<Entity[]>([]);
+  const [brief, setBrief] = useState<string>("");
+  const [briefLoading, setBriefLoading] = useState(false);
 
   useEffect(() => {
     getEntityBySlug(slug).then((e) => setEntity(e ?? null)).catch(() => setEntity(null));
   }, [slug]);
+
+  // Auto-generate a short Cortex intelligence brief for this entity (cached per
+  // entity + language; replies in the active UI language).
+  useEffect(() => {
+    if (!entity) return;
+    setBrief("");
+    setBriefLoading(true);
+    entityBrief(entity.slug, entity.name, language)
+      .then(setBrief)
+      .catch(() => setBrief(""))
+      .finally(() => setBriefLoading(false));
+  }, [entity?.slug, language]);
 
   useEffect(() => {
     if (!entity) return;
@@ -98,9 +113,29 @@ export function EntityProfile() {
             <div className="mt-8 grid gap-9 lg:grid-cols-[1fr_320px]">
               {/* main */}
               <div>
+                {/* AI intelligence brief — Cortex, grounded in this entity's record */}
+                <section className="surface-card rounded-2xl p-6">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <span className="kicker">{tx("AI Intelligence Brief", "موجز الذكاء الاصطناعي")}</span>
+                    {briefLoading && <span data-pulse className="ms-auto h-1.5 w-1.5 rounded-full bg-primary" />}
+                  </div>
+                  <div className="mt-3">
+                    {brief ? (
+                      <Markdown text={brief} />
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="h-3 w-11/12 animate-pulse rounded bg-muted" />
+                        <div className="h-3 w-full animate-pulse rounded bg-muted" />
+                        <div className="h-3 w-4/5 animate-pulse rounded bg-muted" />
+                      </div>
+                    )}
+                  </div>
+                </section>
+
                 {entity.description && (
                   <>
-                    <h2 className="font-display text-[17px] font-semibold">{tx("About", "نبذة")}</h2>
+                    <h2 className="font-display mt-8 text-[17px] font-semibold">{tx("About", "نبذة")}</h2>
                     <p className="mt-3 text-[14.5px] leading-[1.7] text-foreground/85">{description}</p>
                   </>
                 )}

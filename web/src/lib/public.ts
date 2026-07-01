@@ -173,6 +173,20 @@ export async function chat(
   return d.reply;
 }
 
+// entityBrief returns a short Cortex-written intelligence brief for one entity,
+// grounded in its record (via the chat endpoint) and replied in `lang`. Cached in
+// sessionStorage per entity+language so re-visits are instant and not re-billed.
+export async function entityBrief(slug: string, name: string, lang: string): Promise<string> {
+  const key = `brief:${lang}:${slug}`;
+  try { const c = sessionStorage.getItem(key); if (c) return c; } catch { /* ignore */ }
+  const prompt = lang === "ar"
+    ? `اكتب موجز ذكاء اصطناعي موجزًا (٢-٣ جمل) عن "${name}" ودوره وأهميته ضمن منظومة ريادة الأعمال السعودية. بدون مقدمات.`
+    : `Write a concise 2-3 sentence AI intelligence brief on "${name}" — what it does and its role in the Saudi venture ecosystem. No preamble.`;
+  const reply = await chat([{ role: "user", content: prompt }], { entity: slug, lang });
+  try { sessionStorage.setItem(key, reply); } catch { /* ignore */ }
+  return reply;
+}
+
 export type LeadSource = "claim" | "newsletter" | "agent_cta";
 
 export interface LeadInput {
