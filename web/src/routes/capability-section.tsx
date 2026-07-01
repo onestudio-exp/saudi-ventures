@@ -4,7 +4,7 @@ import { Radar, Rocket, TrendingUp, Handshake, Layers, Building2, ArrowRight, Ar
 import { useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
-import { getCapabilityBySlug, listEntities, listArticles, type Capability, type Entity, type Article } from "../lib/public";
+import { getCapabilityBySlug, listEntities, listArticles, displayName, type Capability, type Entity, type Article } from "../lib/public";
 
 const ICONS: Record<string, typeof Layers> = {
   radar: Radar, rocket: Rocket, "trending-up": TrendingUp, handshake: Handshake, layers: Layers,
@@ -111,7 +111,7 @@ export function CapabilitySection() {
                           <Building2 className="h-5 w-5" />
                         </span>
                         <div>
-                          <div className="font-semibold leading-tight">{e.name}</div>
+                          <div className="font-semibold leading-tight">{displayName(e, ar)}</div>
                           <div className="text-xs capitalize text-muted-foreground">{e.kind}{e.sector ? ` · ${e.sector}` : ""}</div>
                         </div>
                       </div>
