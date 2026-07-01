@@ -6,6 +6,7 @@ import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
 import { ChatFab } from "../components/public/ChatFab";
 import { SmartActions } from "../components/public/SmartActions";
+import { EntityKnowledge, type Knowledge } from "../components/public/EntityKnowledge";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { Markdown } from "../components/public/Markdown";
 import { getEntityBySlug, listEntities, entityBrief, entityReport, displayName, AGENT_PERSONAS, type Entity } from "../lib/public";
@@ -39,12 +40,14 @@ export function EntityProfile() {
     getEntityBySlug(slug).then((e) => setEntity(e ?? null)).catch(() => setEntity(null));
   }, [slug]);
 
-  // Deep, multi-section intelligence report (Cortex, cached per entity + language).
+  // Deep multi-section report (Cortex) — only when the entity has no stored
+  // structured knowledge profile yet (enriched entities render that instead).
   useEffect(() => {
-    if (!entity) return;
+    if (!entity || knowledge) { setReport(""); return; }
     setReport("");
     entityReport(entity.slug, entity.name, entity.kind, entity.sector ?? "", entity.headquarters ?? "", entity.metadata ?? "", language)
       .then(setReport).catch(() => setReport(""));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entity?.slug, language]);
 
   // Auto-generate a short Cortex intelligence brief for this entity (cached per
@@ -81,6 +84,7 @@ export function EntityProfile() {
     try { return entity?.metadata ? JSON.parse(entity.metadata) : {}; } catch { return {}; }
   })();
   const storedBrief = typeof meta.ai_brief === "string" ? (meta.ai_brief as string) : "";
+  const knowledge: Knowledge | null = meta.knowledge && typeof meta.knowledge === "object" ? (meta.knowledge as Knowledge) : null;
   const details = (() => {
     // name_ar is hidden because the title already renders it in AR.
     const hide = new Set(["id", "name", "name_ar", "logo_url", "is_active", "is_hidden", "sort_order", "created_at", "updated_at", "description", "website", "country_id", "original_page", "featured", "channel_id", "ingest_metadata", "ai_brief"]);
@@ -189,15 +193,18 @@ export function EntityProfile() {
                   ))}
                 </div>
 
-                {/* Deep AI intelligence report — Cortex, multi-section dossier */}
+                {/* Intelligence profile — structured knowledge from the DB (instant) when
+                    enriched; otherwise an on-demand Cortex narrative report. */}
                 <section className="surface-card mt-6 rounded-2xl p-6">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
-                    <span className="kicker">{tx("Intelligence Report", "تقرير استخباراتي")}</span>
-                    {!report && <span data-pulse className="ms-auto h-1.5 w-1.5 rounded-full bg-primary" />}
+                    <span className="kicker">{knowledge ? tx("Intelligence Profile", "الملف الاستخباراتي") : tx("Intelligence Report", "تقرير استخباراتي")}</span>
+                    {!knowledge && !report && <span data-pulse className="ms-auto h-1.5 w-1.5 rounded-full bg-primary" />}
                   </div>
                   <div className="mt-3">
-                    {report ? (
+                    {knowledge ? (
+                      <EntityKnowledge k={knowledge} />
+                    ) : report ? (
                       <Markdown text={report} />
                     ) : (
                       <div className="space-y-2.5">
