@@ -184,6 +184,27 @@ export async function chat(
   return d.reply;
 }
 
+// --- Platform RAG (Ask the ecosystem) ----------------------------------------
+
+export interface AskSource { name: string; slug: string; sector: string }
+
+// ask runs a retrieval-augmented question over the whole knowledge base: the
+// backend retrieves the most relevant entities/narratives and Cortex answers,
+// grounded, with entity citations.
+export async function ask(question: string, lang: string): Promise<{ answer: string; sources: AskSource[] }> {
+  const r = await fetch(`${API}/api/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, lang }),
+  });
+  if (!r.ok) {
+    if (r.status === 503) throw new Error("AI is not configured on this server.");
+    throw new Error(`ask failed (${r.status})`);
+  }
+  const d = (await r.json()) as { answer: string; sources?: AskSource[] };
+  return { answer: d.answer, sources: d.sources ?? [] };
+}
+
 // entityBrief returns a short Cortex-written intelligence brief for one entity,
 // grounded in its record (via the chat endpoint) and replied in `lang`. Cached in
 // sessionStorage per entity+language so re-visits are instant and not re-billed.

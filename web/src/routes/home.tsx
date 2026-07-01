@@ -8,6 +8,7 @@ import { SubscribeBar } from "../components/public/SubscribeBar";
 import { RadarPanel, type RadarSignal } from "../components/public/RadarPanel";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { SectorMap } from "../components/public/SectorMap";
+import { AskEcosystem } from "../components/public/AskEcosystem";
 import { PublicFooter } from "../components/public/PublicFooter";
 import { listAgents, listAlerts, listEntities, listNarratives, moduleLabel, displayName, type Agent, type Entity, type Narrative } from "../lib/public";
 import { useTranslated } from "../lib/translate";
@@ -136,6 +137,9 @@ export function Home() {
           </div>
         </div>
       </section>
+
+      {/* platform RAG — ask anything, grounded in the knowledge base */}
+      <AskEcosystem />
 
       {/* sourced from — trust strip */}
       <section className="mx-auto max-w-6xl px-6 pb-11">
