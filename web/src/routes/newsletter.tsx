@@ -19,7 +19,7 @@ export function Newsletter() {
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
       <PublicNav />
       <div className="mx-auto max-w-[760px] px-6 py-16 sm:py-20">
-        <div className="rounded-[22px] border border-[#1C3A2C] p-8 sm:p-12" style={{ background: "linear-gradient(150deg,#0C1D16,#0B0F16 70%)" }}>
+        <div className="rounded-[22px] border border-primary/25 p-8 sm:p-12" style={{ background: "linear-gradient(150deg,hsl(var(--primary) / 0.07),hsl(var(--background)) 70%)" }}>
           <div className="mb-8 text-center">
             <p className="kicker mb-3.5">{tx("Weekly Brief", "الموجز الأسبوعي")}</p>
             <h1 className="font-display text-3xl font-semibold sm:text-4xl">{tx("Never miss a Saudi venture move", "لا تفوّت أي تحرّك في ريادة الأعمال السعودية")}</h1>
@@ -40,7 +40,7 @@ export function Newsletter() {
 
         <div className="mt-5 grid gap-3.5 sm:grid-cols-3">
           {tiles.map((t) => (
-            <div key={t.v} className="rounded-xl border border-border p-[18px]" style={{ background: "#10151D" }}>
+            <div key={t.v} className="rounded-xl border border-border p-[18px]" style={{ background: "hsl(var(--card))" }}>
               <div className="font-display text-xl font-semibold text-primary">{t.v}</div>
               <div className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">{t.d}</div>
             </div>

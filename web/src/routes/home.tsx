@@ -79,7 +79,7 @@ export function Home() {
         <div aria-hidden className="grid-texture pointer-events-none absolute inset-x-0 top-0 -z-10 h-[34rem]" />
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 sm:py-20 lg:grid-cols-[1.15fr_0.85fr]">
           <div>
-            <p className="reveal reveal-1 kicker mb-6 inline-flex items-center gap-2 rounded-full border border-[#1C3A2C] bg-[#12271E] px-3 py-1.5">
+            <p className="reveal reveal-1 kicker mb-6 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {tx("By One Studio · Powered by Cortex", "من ون ستوديو · مدعوم بكورتكس")}
             </p>
             <h1 className="font-display reveal reveal-2 text-[2.6rem] font-semibold leading-[1.04] sm:text-[3.25rem]">
@@ -148,15 +148,15 @@ export function Home() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {entities.slice(0, 6).map((e) => (
             <Link key={e.slug} to="/entities/$slug" params={{ slug: e.slug }}
-              className="ecard group rounded-2xl border border-border p-5" style={{ background: "#10151D" }}>
+              className="ecard group rounded-2xl border border-border p-5" style={{ background: "hsl(var(--card))" }}>
               <div className="mb-4 flex items-center justify-between">
                 <BadgeAvatar name={e.name} logoUrl={e.logo_url} size={46} radius={11} />
-                {e.claimed && <span className="mono rounded-full border border-[#1C3A2C] bg-[#12271E] px-2.5 py-1 text-[10px] text-[#5FE0AE]">✓ {tx("CLAIMED", "موثّق")}</span>}
+                {e.claimed && <span className="mono rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[10px] text-primary">✓ {tx("CLAIMED", "موثّق")}</span>}
               </div>
               <div className="font-display truncate text-lg font-semibold">{e.name}</div>
               {(e.description || e.sector) && <div className="mt-1 line-clamp-2 min-h-[2.4rem] text-[13px] leading-relaxed text-muted-foreground">{e.description || e.sector}</div>}
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="mono rounded-md border border-border px-2 py-0.5 text-[10.5px] text-muted-foreground" style={{ background: "#161D26" }}>{e.kind}</span>
+                <span className="mono rounded-md border border-border px-2 py-0.5 text-[10.5px] text-muted-foreground" style={{ background: "hsl(var(--secondary))" }}>{e.kind}</span>
                 {e.headquarters && <span className="mono text-[10.5px] text-muted-foreground/70">{e.headquarters}</span>}
               </div>
             </Link>
@@ -171,7 +171,7 @@ export function Home() {
 
       {/* agents teaser — module specialists */}
       <section className="mx-auto max-w-6xl px-6 pb-6 pt-8">
-        <div className="rounded-[20px] border border-border p-8 sm:p-10" style={{ background: "linear-gradient(180deg,#0E141C,#0B0F16)" }}>
+        <div className="rounded-[20px] border border-border p-8 sm:p-10" style={{ background: "linear-gradient(180deg,hsl(var(--card)),hsl(var(--background)))" }}>
           <div className="mb-7 flex items-end justify-between">
             <div>
               <p className="kicker mb-2.5">{tx("Module Agents", "وكلاء الوحدات")}</p>
@@ -184,7 +184,7 @@ export function Home() {
               const persona = AGENT_PERSONAS[a.slug];
               return (
                 <Link key={a.slug} to="/agents/$slug" params={{ slug: a.slug }}
-                  className="ecard rounded-2xl border border-border p-5" style={{ background: "#10151D" }}>
+                  className="ecard rounded-2xl border border-border p-5" style={{ background: "hsl(var(--card))" }}>
                   <BadgeAvatar name={persona?.name ?? a.name} size={44} radius={12} />
                   <div className="font-display mt-3.5 text-base font-semibold">{persona?.name ?? a.name}</div>
                   <div className="mono mt-0.5 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{a.name}</div>
@@ -198,8 +198,8 @@ export function Home() {
 
       {/* newsletter band — the weekly brief (subscribe) */}
       <section id="subscribe" className="mx-auto max-w-6xl scroll-mt-20 px-6 pb-16 pt-8">
-        <div className="grid items-center gap-11 rounded-[20px] border border-[#1C3A2C] p-8 sm:p-11 lg:grid-cols-2"
-          style={{ background: "linear-gradient(120deg,#0C1D16,#0B0F16 70%)" }}>
+        <div className="grid items-center gap-11 rounded-[20px] border border-primary/25 p-8 sm:p-11 lg:grid-cols-2"
+          style={{ background: "linear-gradient(120deg,hsl(var(--primary) / 0.07),hsl(var(--background)) 70%)" }}>
           <div>
             {overview && (
               <span className="kicker mb-3 inline-flex items-center gap-2">

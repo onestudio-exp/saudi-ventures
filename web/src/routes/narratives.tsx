@@ -70,7 +70,7 @@ export function Narratives() {
               )}
               {articles.slice(0, 12).map((a) => (
                 <a key={a.id} href={a.url || undefined} target="_blank" rel="noreferrer"
-                  className="lrow rounded-[13px] border border-border p-[18px] transition-colors" style={{ background: "#10151D" }}>
+                  className="lrow rounded-[13px] border border-border p-[18px] transition-colors" style={{ background: "hsl(var(--card))" }}>
                   <div className="mb-2 flex items-center gap-2.5">
                     <span className="mono ntag ntag-launch rounded-md px-2 py-0.5 text-[10px]">{tx("SIGNAL", "إشارة")}</span>
                     {a.source_name && <span className="mono text-[11px] text-muted-foreground">{a.source_name}</span>}
@@ -92,8 +92,8 @@ export function Narratives() {
               <div className="flex flex-col gap-3">
                 {narratives.slice(0, 5).map((n) => (
                   <Link key={n.id} to="/narratives/$id" params={{ id: n.id }}
-                    className="rounded-[13px] border border-[#26303D] p-[18px] transition-colors hover:border-primary/40"
-                    style={{ background: "linear-gradient(180deg,#12161E,#0D1117)" }}>
+                    className="rounded-[13px] border border-border p-[18px] transition-colors hover:border-primary/40"
+                    style={{ background: "linear-gradient(180deg,hsl(var(--card)),hsl(var(--background)))" }}>
                     <div className="mb-2 flex items-center gap-2">
                       <Sparkles className="h-3.5 w-3.5" style={{ color: "#8B79E0" }} />
                       <span className="mono text-[10px] tracking-wide" style={{ color: "#A390E8" }}>{tx("CORTEX NARRATIVE", "رواية كورتكس")}</span>
@@ -114,7 +114,7 @@ export function Narratives() {
               <h2 className="font-display mb-3.5 text-base font-semibold">{tx("Classified alerts", "تنبيهات مصنّفة")}</h2>
               <div className="flex flex-col gap-2.5">
                 {alerts.slice(0, 8).map((al) => (
-                  <div key={al.id} className="flex items-start gap-3 rounded-xl border border-border p-[14px_16px]" style={{ background: "#10151D" }}>
+                  <div key={al.id} className="flex items-start gap-3 rounded-xl border border-border p-[14px_16px]" style={{ background: "hsl(var(--card))" }}>
                     <span className={`mono ${sevClass[al.severity] ?? "sev-low"} mt-0.5 shrink-0 rounded-[5px] border px-2 py-0.5 text-[9.5px]`}>
                       {sevLabel[al.severity] ?? al.severity.toUpperCase()}
                     </span>
@@ -133,7 +133,7 @@ export function Narratives() {
             </div>
 
             {/* subscribe to the radar */}
-            <div className="rounded-[16px] border border-[#1C3A2C] p-5" style={{ background: "linear-gradient(160deg,#0E2119,#0B0F16 75%)" }}>
+            <div className="rounded-[16px] border border-primary/25 p-5" style={{ background: "linear-gradient(160deg,hsl(var(--primary) / 0.1),hsl(var(--background)) 75%)" }}>
               <div className="text-[13px] leading-relaxed text-muted-foreground">{tx("Get the radar's weekly synthesis by email and WhatsApp.", "احصل على الخلاصة الأسبوعية للرادار عبر البريد وواتساب.")}</div>
               <div className="mt-3"><LeadForm sourceType="newsletter" sourcePage="/radar" submitLabel={tx("Subscribe", "اشترك")} /></div>
             </div>

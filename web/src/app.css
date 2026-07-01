@@ -8,7 +8,17 @@
    vivid emerald accent (#2FBE8F), and cool slate cards/borders. Placed after the
    @togo-framework/ui import so it wins at equal specificity. All values are the
    shadcn HSL-triplet form the tokens expect. */
+/* Brand accent — shared by both themes (vivid emerald #2FBE8F). */
 :root, .dark, [data-theme] {
+  --primary: 160 60% 47%;          /* #2FBE8F */
+  --primary-foreground: 150 62% 5%; /* #04120C */
+  --ring: 160 60% 47%;
+  --brand-primary: 160 60% 47%;
+  --brand-primary-glow: 158 66% 63%; /* #5FE0AE */
+}
+
+/* Dark canvas — the design's near-black blue. */
+.dark, [data-theme="dark"] {
   --background: 222 31% 6%;        /* #0A0D13 */
   --foreground: 216 30% 94%;       /* #EAEEF4 */
   --card: 216 29% 9%;              /* #10151D */
@@ -23,12 +33,24 @@
   --accent-foreground: 216 30% 94%;
   --border: 216 27% 15%;           /* #1C2430 */
   --input: 216 23% 18%;            /* #232B38 */
+}
 
-  --primary: 160 60% 47%;          /* #2FBE8F */
-  --primary-foreground: 150 62% 5%; /* #04120C */
-  --ring: 160 60% 47%;
-  --brand-primary: 160 60% 47%;
-  --brand-primary-glow: 158 66% 63%; /* #5FE0AE */
+/* Light canvas — cool white with the same emerald accent. */
+:root:not(.dark), [data-theme="light"] {
+  --background: 210 40% 98%;       /* near-white */
+  --foreground: 222 32% 13%;       /* slate ink */
+  --card: 0 0% 100%;
+  --card-foreground: 222 32% 13%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 32% 13%;
+  --muted: 214 32% 95%;
+  --muted-foreground: 216 14% 42%;
+  --secondary: 214 32% 95%;
+  --secondary-foreground: 222 30% 18%;
+  --accent: 214 32% 95%;
+  --accent-foreground: 222 30% 18%;
+  --border: 216 22% 88%;
+  --input: 216 22% 85%;
 }
 
 /* ── Typography system ──────────────────────────────────────────────────────

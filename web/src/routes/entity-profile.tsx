@@ -70,7 +70,7 @@ export function EntityProfile() {
                 <div className="flex flex-wrap items-center gap-3">
                   <h1 className="font-display text-3xl font-semibold">{entity.name}</h1>
                   {entity.claimed && (
-                    <span className="mono inline-flex items-center gap-1 rounded-full border border-[#1C3A2C] bg-[#12271E] px-2.5 py-1 text-[10.5px] text-[#5FE0AE]">
+                    <span className="mono inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[10.5px] text-primary">
                       <ShieldCheck className="h-3 w-3" /> {tx("CLAIMED PROFILE", "ملف موثّق")}
                     </span>
                   )}
@@ -80,7 +80,7 @@ export function EntityProfile() {
                   {[entity.kind, entity.sector, entity.headquarters, entity.founded_year ? `${tx("Founded", "تأسست")} ${entity.founded_year}` : null]
                     .filter(Boolean)
                     .map((chip, i) => (
-                      <span key={i} className="mono rounded-md border border-border px-2.5 py-1 text-[11px] capitalize text-muted-foreground" style={{ background: "#161D26" }}>{chip as string}</span>
+                      <span key={i} className="mono rounded-md border border-border px-2.5 py-1 text-[11px] capitalize text-muted-foreground" style={{ background: "hsl(var(--secondary))" }}>{chip as string}</span>
                     ))}
                 </div>
               </div>
@@ -120,7 +120,7 @@ export function EntityProfile() {
                     <div className="mt-3 grid gap-3 sm:grid-cols-3">
                       {similar.map((s) => (
                         <Link key={s.slug} to="/entities/$slug" params={{ slug: s.slug }}
-                          className="ecard flex items-center gap-3 rounded-xl border border-border p-3.5" style={{ background: "#10151D" }}>
+                          className="ecard flex items-center gap-3 rounded-xl border border-border p-3.5" style={{ background: "hsl(var(--card))" }}>
                           <BadgeAvatar name={s.name} logoUrl={s.logo_url} size={36} radius={9} />
                           <div className="min-w-0">
                             <div className="truncate text-[13.5px] font-semibold">{s.name}</div>
@@ -135,7 +135,7 @@ export function EntityProfile() {
 
               {/* sidebar */}
               <div className="flex flex-col gap-4">
-                <div className="rounded-[14px] border border-border p-5" style={{ background: "#10151D" }}>
+                <div className="rounded-[14px] border border-border p-5" style={{ background: "hsl(var(--card))" }}>
                   <div className="mono mb-3.5 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{tx("Key facts", "حقائق أساسية")}</div>
                   <div className="flex flex-col gap-3 text-[13px]">
                     {entity.website && (
@@ -151,7 +151,7 @@ export function EntityProfile() {
                   </div>
                 </div>
 
-                <div className="rounded-[14px] border border-border p-5" style={{ background: "#10151D" }}>
+                <div className="rounded-[14px] border border-border p-5" style={{ background: "hsl(var(--card))" }}>
                   <div className="mono mb-3.5 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{tx("Agents watching", "وكلاء يراقبون")}</div>
                   <div className="flex flex-col gap-3">
                     {watchers(entity.kind).map((agSlug) => {
@@ -168,7 +168,7 @@ export function EntityProfile() {
                 </div>
 
                 {/* claim card */}
-                <div id="claim" className="scroll-mt-20 rounded-[14px] border border-[#1C3A2C] p-5" style={{ background: "#0C1D16" }}>
+                <div id="claim" className="scroll-mt-20 rounded-[14px] border border-primary/25 p-5" style={{ background: "hsl(var(--primary) / 0.07)" }}>
                   <div className="text-[13px] leading-relaxed text-muted-foreground">{tx("Is this your company? Claim the profile to keep it accurate.", "هل هذه شركتك؟ طالب بالملف للحفاظ على دقته.")}</div>
                   <div className="mt-4"><LeadForm sourceType="claim" sourcePage={`/entities/${slug}`} submitLabel={tx("Claim profile", "طالب بالملف")} /></div>
                 </div>

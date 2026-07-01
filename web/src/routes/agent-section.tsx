@@ -52,7 +52,7 @@ export function AgentSection() {
           <div className="mt-6 grid items-start gap-9 lg:grid-cols-[1fr_360px]">
             {/* persona + intelligence feed */}
             <div>
-              <div className="rounded-[18px] border border-border p-8" style={{ background: "linear-gradient(180deg,#10161F,#0C1118)" }}>
+              <div className="rounded-[18px] border border-border p-8" style={{ background: "linear-gradient(180deg,hsl(var(--card)),hsl(var(--background)))" }}>
                 <div className="flex items-center gap-5">
                   <span className="relative">
                     <BadgeAvatar name={persona?.name ?? agent.name} size={66} radius={16} />
@@ -73,7 +73,7 @@ export function AgentSection() {
                 {agent.description && <p className="mt-3 leading-relaxed text-muted-foreground">{agent.description}</p>}
                 <div className="mt-6 flex flex-wrap gap-2.5">
                   {[tx("Cortex-powered", "مدعوم بكورتكس"), tx("AR + EN", "عربي + إنجليزي"), tx("Updated daily", "تحديث يومي")].map((p) => (
-                    <span key={p} className="mono rounded-lg border border-border px-3 py-1.5 text-[11px] text-muted-foreground" style={{ background: "#0D1219" }}>{p}</span>
+                    <span key={p} className="mono rounded-lg border border-border px-3 py-1.5 text-[11px] text-muted-foreground" style={{ background: "hsl(var(--muted))" }}>{p}</span>
                   ))}
                 </div>
               </div>
@@ -102,7 +102,7 @@ export function AgentSection() {
 
             {/* sticky lead CTA → stored Lead (source_type=agent_cta, source_agent=slug) */}
             <aside className="lg:sticky lg:top-24">
-              <div className="rounded-[18px] border border-primary/25 p-6" style={{ background: "linear-gradient(160deg,#0E2119,#0B0F16 75%)" }}>
+              <div className="rounded-[18px] border border-primary/25 p-6" style={{ background: "linear-gradient(160deg,hsl(var(--primary) / 0.1),hsl(var(--background)) 75%)" }}>
                 <BadgeAvatar name={persona?.name ?? agent.name} size={40} radius={11} />
                 <h2 className="font-display mt-4 text-lg font-semibold leading-tight">{agent.cta_text}</h2>
                 {agent.cta_subtext && <p className="mt-1.5 text-sm text-muted-foreground">{agent.cta_subtext}</p>}

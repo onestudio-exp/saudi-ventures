@@ -61,7 +61,7 @@ export function AdminLeads() {
     { v: counts.total, l: tx("Total leads", "إجمالي العملاء"), c: "text-foreground" },
     { v: counts.claim, l: tx("Claims", "مطالبات"), c: "text-[#8FC2EF]" },
     { v: counts.newsletter, l: tx("Newsletter", "النشرة"), c: "text-[#E6C878]" },
-    { v: counts.agent_cta, l: tx("Agent CTA", "دعوة الوكيل"), c: "text-[#5FE0AE]" },
+    { v: counts.agent_cta, l: tx("Agent CTA", "دعوة الوكيل"), c: "text-primary" },
   ];
 
   return (
@@ -85,7 +85,7 @@ export function AdminLeads() {
           {/* metrics */}
           <div className="mt-6 grid grid-cols-2 gap-3.5 lg:grid-cols-4">
             {metrics.map((m) => (
-              <div key={m.l} className="rounded-[13px] border border-border p-[18px]" style={{ background: "#10151D" }}>
+              <div key={m.l} className="rounded-[13px] border border-border p-[18px]" style={{ background: "hsl(var(--card))" }}>
                 <div className={`font-display text-3xl font-semibold ${m.c}`}>{m.v}</div>
                 <div className="mono mt-1 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{m.l}</div>
               </div>
@@ -94,7 +94,7 @@ export function AdminLeads() {
 
           {/* per-agent */}
           {perAgent.length > 0 && (
-            <div className="mt-6 rounded-[13px] border border-border p-5" style={{ background: "#10151D" }}>
+            <div className="mt-6 rounded-[13px] border border-border p-5" style={{ background: "hsl(var(--card))" }}>
               <div className="mono mb-3.5 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{tx("Leads per agent", "العملاء لكل وكيل")}</div>
               <div className="flex flex-wrap gap-7">
                 {perAgent.map(({ agent, count }) => (
@@ -121,8 +121,8 @@ export function AdminLeads() {
           </div>
 
           {/* table */}
-          <div className="mt-4 overflow-hidden rounded-[13px] border border-border" style={{ background: "#10151D" }}>
-            <div className="grid grid-cols-[1.4fr_1.1fr_1fr_1.3fr_0.7fr] gap-3 border-b border-border px-[18px] py-3" style={{ background: "#0D1219" }}>
+          <div className="mt-4 overflow-hidden rounded-[13px] border border-border" style={{ background: "hsl(var(--card))" }}>
+            <div className="grid grid-cols-[1.4fr_1.1fr_1fr_1.3fr_0.7fr] gap-3 border-b border-border px-[18px] py-3" style={{ background: "hsl(var(--muted))" }}>
               {[tx("Email", "البريد"), tx("WhatsApp", "واتساب"), tx("Source", "المصدر"), tx("Page / Agent", "الصفحة / الوكيل"), tx("Date", "التاريخ")].map((h) => (
                 <div key={h} className="mono text-[10px] uppercase tracking-wide text-muted-foreground/70">{h}</div>
               ))}
@@ -148,14 +148,14 @@ export function AdminLeads() {
           <p className="mt-1 text-sm text-muted-foreground">{tx("Each Agent's name and CTA copy. Edit records in the resource admin.", "اسم كل وكيل ونص الدعوة. عدّل السجلات في إدارة الموارد.")}</p>
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
             {agents.map((a) => (
-              <div key={a.slug} className="rounded-[14px] border border-border p-[22px]" style={{ background: "#10151D" }}>
+              <div key={a.slug} className="rounded-[14px] border border-border p-[22px]" style={{ background: "hsl(var(--card))" }}>
                 <div className="flex items-center gap-3.5">
                   <BadgeAvatar name={AGENT_PERSONAS[a.slug]?.name ?? a.name} size={48} radius={12} />
                   <div className="flex-1">
                     <div className="font-display text-[17px] font-semibold">{AGENT_PERSONAS[a.slug]?.name ?? a.name}</div>
                     <div className="mono text-[10.5px] uppercase text-muted-foreground/70">{a.name}</div>
                   </div>
-                  <span className={`mono rounded-full border px-2.5 py-1 text-[10px] ${a.active ? "border-[#1C3A2C] bg-[#12271E] text-[#5FE0AE]" : "border-border text-muted-foreground"}`}>
+                  <span className={`mono rounded-full border px-2.5 py-1 text-[10px] ${a.active ? "border-primary/25 bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}>
                     {a.active ? tx("ACTIVE", "نشط") : tx("OFF", "متوقف")}
                   </span>
                 </div>
