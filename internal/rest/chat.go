@@ -64,6 +64,7 @@ func RegisterChatRoutes(api huma.API, a *app.App) {
 		Body struct {
 			Agent    string `json:"agent,omitempty"`
 			Entity   string `json:"entity,omitempty"`
+			Lang     string `json:"lang,omitempty"`
 			Messages []struct {
 				Role    string `json:"role"`
 				Content string `json:"content"`
@@ -83,6 +84,10 @@ func RegisterChatRoutes(api huma.API, a *app.App) {
 		}
 
 		system := buildSystemPrompt(ctx, a, in.Body.Agent, in.Body.Entity)
+		// Reply in the visitor's language (the reference material may be English).
+		if strings.HasPrefix(strings.ToLower(in.Body.Lang), "ar") {
+			system += " IMPORTANT: Always reply in Arabic (العربية) in clear Modern Standard Arabic, even though the reference material is in English."
+		}
 
 		// Seed with the system prompt, then append the last 8 user/assistant turns,
 		// truncating each content to 2000 runes and normalizing roles.

@@ -154,10 +154,10 @@ export const AGENT_PERSONAS: Record<string, { name: string; character: string; c
   "sectors-market": { name: "Sooq", character: "a market trend-spotter reading sector momentum across the Saudi economy", character_ar: "راصد لاتجاهات السوق يقرأ زخم القطاعات عبر الاقتصاد السعودي" },
 };
 
-// chat sends the conversation (+ agent/entity context) to Cortex and returns the reply.
+// chat sends the conversation (+ agent/entity context + reply language) to Cortex.
 export async function chat(
   messages: ChatMessage[],
-  ctx: { agent?: string; entity?: string },
+  ctx: { agent?: string; entity?: string; lang?: string },
 ): Promise<string> {
   const r = await fetch(`${API}/api/chat`, {
     method: "POST",

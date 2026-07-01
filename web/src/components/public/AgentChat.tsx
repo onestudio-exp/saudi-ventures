@@ -44,7 +44,7 @@ export function AgentChat({ agent, entity, speaker, suggestions = [], className,
     setInput("");
     setBusy(true);
     try {
-      const reply = await chat(next, { agent, entity });
+      const reply = await chat(next, { agent, entity, lang: language });
       setMessages([...next, { role: "assistant", content: reply }]);
     } catch (e) {
       setError(e instanceof Error ? e.message : tx("Something went wrong.", "حدث خطأ ما."));
