@@ -31,6 +31,9 @@ export function AdminCapabilities() {
   const [caps, setCaps] = useState<Cap[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);       // slug whose config editor is open
+  const [draft, setDraft] = useState<Record<string, string>>({}); // slug -> config JSON draft
+  const [saved, setSaved] = useState<string | null>(null);
 
   useEffect(() => {
     adminList("capabilities")
@@ -38,23 +41,31 @@ export function AdminCapabilities() {
       .catch(() => setErr(tx("Could not load capabilities.", "تعذّر تحميل القدرات.")));
   }, []);
 
-  async function toggle(c: Cap) {
+  // save merges a patch into the full capability record (the update replaces the row).
+  async function save(c: Cap, patch: Partial<Cap>) {
     setBusy(c.slug);
     setErr(null);
-    const next = !c.enabled;
+    const merged = { ...c, ...patch };
     try {
       await adminUpdate("capabilities", c.id, {
-        slug: c.slug, name_en: c.name_en, name_ar: c.name_ar ?? "", kind: c.kind,
-        enabled: next, nav_order: c.nav_order, nav_icon: c.nav_icon ?? "", route: c.route ?? "",
-        description_en: c.description_en ?? "", description_ar: c.description_ar ?? "",
-        config: c.config ?? "{}", workflow_steps: c.workflow_steps ?? "[]",
+        slug: merged.slug, name_en: merged.name_en, name_ar: merged.name_ar ?? "", kind: merged.kind,
+        enabled: merged.enabled, nav_order: merged.nav_order, nav_icon: merged.nav_icon ?? "", route: merged.route ?? "",
+        description_en: merged.description_en ?? "", description_ar: merged.description_ar ?? "",
+        config: merged.config ?? "{}", workflow_steps: merged.workflow_steps ?? "[]",
       });
-      setCaps((prev) => prev.map((x) => (x.slug === c.slug ? { ...x, enabled: next } : x)));
+      setCaps((prev) => prev.map((x) => (x.slug === c.slug ? merged : x)));
     } catch {
       setErr(tx("Save failed. Are you signed in as admin?", "فشل الحفظ. هل أنت مسجّل كمشرف؟"));
     } finally {
       setBusy(null);
     }
+  }
+  const toggle = (c: Cap) => save(c, { enabled: !c.enabled });
+  async function saveConfig(c: Cap) {
+    const raw = draft[c.slug] ?? c.config ?? "{}";
+    try { JSON.parse(raw); } catch { setErr(tx("Config must be valid JSON.", "يجب أن يكون الإعداد JSON صالحًا.")); return; }
+    await save(c, { config: raw });
+    setSaved(c.slug); setTimeout(() => setSaved(null), 1600);
   }
 
   const on = caps.filter((c) => c.enabled).length;
@@ -88,7 +99,9 @@ export function AdminCapabilities() {
                 {tx(c.description_en ?? "", c.description_ar ?? c.description_en ?? "")}
               </p>
               <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3">
-                <span className="mono text-[11px] text-muted-foreground/70">{c.route || `/modules/${c.slug}`}</span>
+                <button onClick={() => setOpen(open === c.slug ? null : c.slug)} className="mono text-[11px] text-primary hover:underline">
+                  {open === c.slug ? tx("Hide config", "إخفاء الإعداد") : tx("Config", "الإعداد")}
+                </button>
                 <button
                   onClick={() => toggle(c)}
                   disabled={busy === c.slug}
@@ -99,6 +112,24 @@ export function AdminCapabilities() {
                   <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${c.enabled ? "translate-x-6 rtl:-translate-x-6" : "translate-x-1 rtl:-translate-x-1"}`} />
                 </button>
               </div>
+
+              {open === c.slug && (
+                <div className="mt-3 border-t border-border/50 pt-3">
+                  <div className="mono mb-1.5 text-[10px] uppercase tracking-wide text-muted-foreground/70">{tx("config (JSON)", "الإعداد (JSON)")}</div>
+                  <textarea
+                    dir="ltr"
+                    rows={4}
+                    value={draft[c.slug] ?? c.config ?? "{}"}
+                    onChange={(e) => setDraft((d) => ({ ...d, [c.slug]: e.target.value }))}
+                    className="mono w-full rounded-lg border border-border bg-background px-2.5 py-2 text-[11px] outline-none focus:border-primary/50"
+                  />
+                  <div className="mt-2 flex items-center gap-3">
+                    <button onClick={() => saveConfig(c)} disabled={busy === c.slug} className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-50">{tx("Save config", "حفظ الإعداد")}</button>
+                    {saved === c.slug && <span className="mono text-[11px] text-primary">{tx("✓ Saved", "✓ حُفظ")}</span>}
+                    <span className="mono text-[10px] text-muted-foreground/60">{tx("e.g. queries drive the data pipeline", "مثال: الاستعلامات تُشغّل خط البيانات")}</span>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
