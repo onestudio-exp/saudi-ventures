@@ -40,6 +40,9 @@ export function EntityProfile() {
   // entity + language; replies in the active UI language).
   useEffect(() => {
     if (!entity) return;
+    // A pre-generated brief (stored in metadata.ai_brief) shows instantly; only
+    // fall back to on-demand Cortex when none is stored.
+    if (storedBrief) { setBrief(""); setBriefLoading(false); return; }
     setBrief("");
     setBriefLoading(true);
     entityBrief(entity.slug, entity.name, language)
@@ -55,20 +58,23 @@ export function EntityProfile() {
       .catch(() => {});
   }, [entity?.slug]);
 
-  // Parse the source record for the Details table.
+  // Parse the source record once — for the Details table and the stored brief.
+  const meta: Record<string, unknown> = (() => {
+    try { return entity?.metadata ? JSON.parse(entity.metadata) : {}; } catch { return {}; }
+  })();
+  const storedBrief = typeof meta.ai_brief === "string" ? (meta.ai_brief as string) : "";
   const details = (() => {
-    if (!entity) return [] as [string, unknown][];
-    let meta: Record<string, unknown> = {};
-    try { meta = entity.metadata ? JSON.parse(entity.metadata) : {}; } catch { meta = {}; }
-    const hide = new Set(["id", "name", "logo_url", "is_active", "is_hidden", "sort_order", "created_at", "updated_at", "description", "website", "country_id", "original_page", "featured", "channel_id", "ingest_metadata"]);
+    const hide = new Set(["id", "name", "logo_url", "is_active", "is_hidden", "sort_order", "created_at", "updated_at", "description", "website", "country_id", "original_page", "featured", "channel_id", "ingest_metadata", "ai_brief"]);
     const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(s);
     return Object.entries(meta).filter(([k, v]) => !hide.has(k) && v !== null && v !== "" && typeof v !== "object" && !isUUID(String(v)));
   })();
   const label = (k: string) => k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-  // Translate the entity's description to Arabic via Cortex when RTL.
-  const descTr = useTranslated([entity?.description ?? ""], ar && !!entity)[0];
+  // Translate the description + stored brief to Arabic via Cortex when RTL.
+  const [descTr, storedBriefTr] = useTranslated([entity?.description ?? "", storedBrief], ar && !!entity);
   const description = ar ? descTr || entity?.description : entity?.description;
+  // Prefer the pre-generated brief (translated in AR); else the on-demand one.
+  const shownBrief = storedBrief ? (ar ? storedBriefTr || storedBrief : storedBrief) : brief;
 
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
@@ -118,11 +124,11 @@ export function EntityProfile() {
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
                     <span className="kicker">{tx("AI Intelligence Brief", "موجز الذكاء الاصطناعي")}</span>
-                    {briefLoading && <span data-pulse className="ms-auto h-1.5 w-1.5 rounded-full bg-primary" />}
+                    {briefLoading && !storedBrief && <span data-pulse className="ms-auto h-1.5 w-1.5 rounded-full bg-primary" />}
                   </div>
                   <div className="mt-3">
-                    {brief ? (
-                      <Markdown text={brief} />
+                    {shownBrief ? (
+                      <Markdown text={shownBrief} />
                     ) : (
                       <div className="space-y-2">
                         <div className="h-3 w-11/12 animate-pulse rounded bg-muted" />
