@@ -198,6 +198,19 @@ export async function entityBrief(slug: string, name: string, lang: string): Pro
   return reply;
 }
 
+// capabilityBrief returns a short Cortex intelligence brief on a capability's
+// domain within the Saudi ecosystem, in `lang`. Cached per capability + language.
+export async function capabilityBrief(slug: string, name: string, desc: string, lang: string): Promise<string> {
+  const key = `capbrief:${lang}:${slug}`;
+  try { const c = sessionStorage.getItem(key); if (c) return c; } catch { /* ignore */ }
+  const prompt = lang === "ar"
+    ? `اكتب موجز ذكاء (٣-٤ جمل) عن حالة "${name}" (${desc}) ضمن منظومة ريادة الأعمال السعودية، مبنيًا على البيانات المتتبَّعة. بدون مقدمات.`
+    : `Write a 3-4 sentence intelligence brief on the state of "${name}" (${desc}) within the Saudi venture ecosystem, grounded in the tracked data. No preamble.`;
+  const reply = await chat([{ role: "user", content: prompt }], { lang });
+  try { sessionStorage.setItem(key, reply); } catch { /* ignore */ }
+  return reply;
+}
+
 export type LeadSource = "claim" | "newsletter" | "agent_cta";
 
 export interface LeadInput {
