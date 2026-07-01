@@ -7,6 +7,7 @@ import { LeadForm } from "../components/public/LeadForm";
 import { SubscribeBar } from "../components/public/SubscribeBar";
 import { RadarPanel, type RadarSignal } from "../components/public/RadarPanel";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
+import { SectorMap } from "../components/public/SectorMap";
 import { PublicFooter } from "../components/public/PublicFooter";
 import { listAgents, listAlerts, listEntities, listNarratives, moduleLabel, displayName, type Agent, type Entity, type Narrative } from "../lib/public";
 import { useTranslated } from "../lib/translate";
@@ -178,6 +179,9 @@ export function Home() {
           </Link>
         </div>
       </section>
+
+      {/* ecosystem knowledge layer — sector map from the enriched data */}
+      <SectorMap entities={entities} />
 
       {/* agents teaser — module specialists */}
       <section className="mx-auto max-w-6xl px-6 pb-6 pt-8">
