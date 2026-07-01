@@ -8,6 +8,7 @@ package rest
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 
@@ -15,6 +16,25 @@ import (
 	"github.com/saudi-ventures/saudi-ventures/internal/models"
 	"github.com/saudi-ventures/saudi-ventures/internal/services/cortex"
 )
+
+// moduleRole maps an agent's module to the domain it covers, for the chat persona
+// line (so it never reads "You are Raqib, the Raqib agent").
+func moduleRole(module string) string {
+	switch module {
+	case "news":
+		return "breaking news and market signals"
+	case "startups":
+		return "the Saudi startup directory"
+	case "investment":
+		return "investors, funds, and capital flows"
+	case "funding":
+		return "funding rounds, M&A, and exits"
+	case "sectors":
+		return "sector activity and market trends"
+	default:
+		return "the Saudi venture ecosystem"
+	}
+}
 
 // persona is the public face a section Agent presents in chat.
 type persona struct {
@@ -113,11 +133,13 @@ func buildSystemPrompt(ctx context.Context, a *app.App, agentSlug, entitySlug st
 
 	if agentSlug != "" {
 		if p, ok := personas[agentSlug]; ok {
-			display := agentSlug
+			display := p.Name
+			module := ""
 			if rows, err := models.Agents(a).Where("slug", "=", agentSlug).Limit(1).Get(ctx); err == nil && len(rows) > 0 {
 				display = rows[0].Name
+				module = rows[0].Module
 			}
-			system = "You are " + p.Name + ", the " + display + " agent — " + p.Character + ". " + system
+			system = "You are " + display + ", a Saudi venture intelligence agent covering " + moduleRole(module) + " — " + p.Character + ". " + system
 
 			// Latest brief for this agent (Narratives where kind == agent slug).
 			if briefs, err := models.Narratives(a).
@@ -128,6 +150,21 @@ func buildSystemPrompt(ctx context.Context, a *app.App, agentSlug, entitySlug st
 				if body := briefs[0].BodyMd; body != "" {
 					system += " Reference brief:\n" + truncRunes(body, 1500)
 				}
+			}
+
+			// Recent live signals from the news radar, so the agent can answer about
+			// what just happened / changed (not only the structural brief).
+			if arts, err := models.Articles(a).Order("created_at DESC").Limit(12).Get(ctx); err == nil && len(arts) > 0 {
+				var b strings.Builder
+				b.WriteString("\nRecent Saudi ecosystem signals (most recent first, from the live news radar — use these to answer questions about recent news or what changed):")
+				for _, art := range arts {
+					line := art.Title
+					if art.Summary != nil && *art.Summary != "" {
+						line += " — " + *art.Summary
+					}
+					b.WriteString("\n- " + truncRunes(line, 180))
+				}
+				system += b.String()
 			}
 		}
 	}
