@@ -7,7 +7,7 @@ import { LeadForm } from "../components/public/LeadForm";
 import { ChatFab } from "../components/public/ChatFab";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { Markdown } from "../components/public/Markdown";
-import { getEntityBySlug, listEntities, entityBrief, AGENT_PERSONAS, type Entity } from "../lib/public";
+import { getEntityBySlug, listEntities, entityBrief, displayName, AGENT_PERSONAS, type Entity } from "../lib/public";
 import { useTranslated } from "../lib/translate";
 
 // Which persona "watches" an entity, by kind — always the news radar plus one specialist.
@@ -96,7 +96,7 @@ export function EntityProfile() {
               <BadgeAvatar name={entity.name} logoUrl={entity.logo_url} size={76} radius={18} />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="font-display text-3xl font-semibold">{entity.name}</h1>
+                  <h1 className="font-display text-3xl font-semibold">{displayName(entity, ar)}</h1>
                   {entity.claimed && (
                     <span className="mono inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[10.5px] text-primary">
                       <ShieldCheck className="h-3 w-3" /> {tx("CLAIMED PROFILE", "ملف موثّق")}
@@ -171,7 +171,7 @@ export function EntityProfile() {
                           className="ecard flex items-center gap-3 rounded-xl border border-border p-3.5" style={{ background: "hsl(var(--card))" }}>
                           <BadgeAvatar name={s.name} logoUrl={s.logo_url} size={36} radius={9} />
                           <div className="min-w-0">
-                            <div className="truncate text-[13.5px] font-semibold">{s.name}</div>
+                            <div className="truncate text-[13.5px] font-semibold">{displayName(s, ar)}</div>
                             <div className="mono truncate text-[10.5px] text-muted-foreground/70">{s.sector || s.kind}</div>
                           </div>
                         </Link>

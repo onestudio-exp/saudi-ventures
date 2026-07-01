@@ -39,9 +39,14 @@ export function AgentSection() {
   const persona = AGENT_PERSONAS[slug];
 
   // Translate the agent's description + AI brief to Arabic via Cortex when RTL.
-  const [descTr, tagTr] = useTranslated([agent?.description ?? "", agent?.tagline ?? ""], ar && !!agent);
+  const [descTr, tagTr, ctaTr, ctaSubTr] = useTranslated(
+    [agent?.description ?? "", agent?.tagline ?? "", agent?.cta_text ?? "", agent?.cta_subtext ?? ""],
+    ar && !!agent,
+  );
   const description = ar ? descTr || agent?.description : agent?.description;
   const tagline = ar ? tagTr || agent?.tagline : agent?.tagline;
+  const ctaText = ar ? ctaTr || agent?.cta_text : agent?.cta_text;
+  const ctaSub = ar ? ctaSubTr || agent?.cta_subtext : agent?.cta_subtext;
   const character = persona ? (ar ? persona.character_ar : persona.character) : "";
   const briefMd = useTranslatedMarkdown(brief?.body_md, ar && !!brief);
 
@@ -112,8 +117,8 @@ export function AgentSection() {
             <aside className="lg:sticky lg:top-24">
               <div className="rounded-[18px] border border-primary/25 p-6" style={{ background: "linear-gradient(160deg,hsl(var(--primary) / 0.1),hsl(var(--background)) 75%)" }}>
                 <BadgeAvatar name={agent.name} size={40} radius={11} />
-                <h2 className="font-display mt-4 text-lg font-semibold leading-tight">{agent.cta_text}</h2>
-                {agent.cta_subtext && <p className="mt-1.5 text-sm text-muted-foreground">{agent.cta_subtext}</p>}
+                <h2 className="font-display mt-4 text-lg font-semibold leading-tight">{ctaText}</h2>
+                {ctaSub && <p className="mt-1.5 text-sm text-muted-foreground">{ctaSub}</p>}
                 <div className="mt-4">
                   <LeadForm sourceType="agent_cta" sourceAgent={slug} sourcePage={`/agents/${slug}`} submitLabel={tx("Request early access", "اطلب وصولاً مبكرًا")} />
                 </div>

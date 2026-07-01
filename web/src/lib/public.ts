@@ -125,6 +125,17 @@ export interface ChatMessage {
   content: string;
 }
 
+// displayName returns the entity's Arabic name (metadata.name_ar) in AR mode when
+// available, else its English name. ~97% of entities carry name_ar.
+export function displayName(e: { name: string; metadata?: string | null }, ar: boolean): string {
+  if (!ar) return e.name;
+  try {
+    const m = e.metadata ? JSON.parse(e.metadata) : {};
+    if (typeof m.name_ar === "string" && m.name_ar.trim()) return m.name_ar as string;
+  } catch { /* ignore */ }
+  return e.name;
+}
+
 // Module -> role label (the small sub-title under the editable agent name).
 export const MODULE_LABEL: Record<string, string> = {
   news: "News Radar",

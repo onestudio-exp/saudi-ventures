@@ -4,7 +4,7 @@ import { MapPin, Search } from "lucide-react";
 import { Badge, Input, useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
-import { listEntities, type Entity } from "../lib/public";
+import { listEntities, displayName, type Entity } from "../lib/public";
 import { useTranslated } from "../lib/translate";
 
 const MAX_RENDER = 120;
@@ -132,7 +132,7 @@ export function Entities() {
                   <div className="flex items-start gap-3">
                     <EntityLogo entity={e} />
                     <div className="min-w-0">
-                      <div className="truncate font-semibold leading-tight">{e.name}</div>
+                      <div className="truncate font-semibold leading-tight">{displayName(e, ar)}</div>
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                         <Badge variant="outline" className="capitalize">{trKind(e.kind)}</Badge>
                         {e.sector && (

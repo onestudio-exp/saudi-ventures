@@ -8,7 +8,7 @@ import { SubscribeBar } from "../components/public/SubscribeBar";
 import { RadarPanel, type RadarSignal } from "../components/public/RadarPanel";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { PublicFooter } from "../components/public/PublicFooter";
-import { listAgents, listAlerts, listEntities, listNarratives, moduleLabel, type Agent, type Entity, type Narrative } from "../lib/public";
+import { listAgents, listAlerts, listEntities, listNarratives, moduleLabel, displayName, type Agent, type Entity, type Narrative } from "../lib/public";
 import { useTranslated } from "../lib/translate";
 
 export function Home() {
@@ -163,7 +163,7 @@ export function Home() {
                 <BadgeAvatar name={e.name} logoUrl={e.logo_url} size={46} radius={11} />
                 {e.claimed && <span className="mono rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[10px] text-primary">✓ {tx("CLAIMED", "موثّق")}</span>}
               </div>
-              <div className="font-display truncate text-lg font-semibold">{e.name}</div>
+              <div className="font-display truncate text-lg font-semibold">{displayName(e, ar)}</div>
               {(e.description || e.sector) && <div className="mt-1 line-clamp-2 min-h-[2.4rem] text-[13px] leading-relaxed text-muted-foreground">{ar ? previewDesc[i] || e.description || e.sector : e.description || e.sector}</div>}
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="mono rounded-md border border-border px-2 py-0.5 text-[10.5px] text-muted-foreground" style={{ background: "hsl(var(--secondary))" }}>{ar ? previewKinds[i] || e.kind : e.kind}</span>
