@@ -133,15 +133,25 @@ export const MODULE_LABEL: Record<string, string> = {
   funding: "Funding & Deals",
   sectors: "Sectors & Market",
 };
+export const MODULE_LABEL_AR: Record<string, string> = {
+  news: "رادار الأخبار",
+  startups: "دليل الشركات الناشئة",
+  investment: "ذكاء الاستثمار",
+  funding: "التمويل والصفقات",
+  sectors: "القطاعات والسوق",
+};
+// moduleLabel returns the localized role label for an agent module.
+export const moduleLabel = (module: string, ar: boolean): string =>
+  (ar ? MODULE_LABEL_AR[module] : MODULE_LABEL[module]) ?? module;
 
 // Persona per agent slug — the character/voice. The editable display NAME now lives
 // on the agent record itself (controllable from the admin dashboard).
-export const AGENT_PERSONAS: Record<string, { name: string; character: string }> = {
-  "news-radar": { name: "Raqib", character: "a sharp, fast-moving news scout who surfaces what just happened in Saudi venture and why it matters" },
-  "list-of-startups": { name: "Rowad", character: "an encyclopedic guide to Saudi startups — who they are, what they build, and where they stand" },
-  "investment": { name: "Mustathmir", character: "a measured investment analyst tracking Saudi VCs, funds, and where capital flows" },
-  "funding-deals": { name: "Safqa", character: "a deal-savvy tracker of Saudi funding rounds, M&A, and exits" },
-  "sectors-market": { name: "Sooq", character: "a market trend-spotter reading sector momentum across the Saudi economy" },
+export const AGENT_PERSONAS: Record<string, { name: string; character: string; character_ar: string }> = {
+  "news-radar": { name: "Raqib", character: "a sharp, fast-moving news scout who surfaces what just happened in Saudi venture and why it matters", character_ar: "كشّاف أخبار سريع وحاد يرصد ما حدث للتو في ريادة الأعمال السعودية ولماذا يهم" },
+  "list-of-startups": { name: "Rowad", character: "an encyclopedic guide to Saudi startups — who they are, what they build, and where they stand", character_ar: "دليل موسوعي للشركات الناشئة السعودية — من هم، وماذا يبنون، وأين يقفون" },
+  "investment": { name: "Mustathmir", character: "a measured investment analyst tracking Saudi VCs, funds, and where capital flows", character_ar: "محلّل استثماري متّزن يتابع صناديق ومستثمري السعودية وأين يتدفّق رأس المال" },
+  "funding-deals": { name: "Safqa", character: "a deal-savvy tracker of Saudi funding rounds, M&A, and exits", character_ar: "متتبّع بارع للصفقات يرصد جولات التمويل والاستحواذات والتخارجات في السعودية" },
+  "sectors-market": { name: "Sooq", character: "a market trend-spotter reading sector momentum across the Saudi economy", character_ar: "راصد لاتجاهات السوق يقرأ زخم القطاعات عبر الاقتصاد السعودي" },
 };
 
 // chat sends the conversation (+ agent/entity context) to Cortex and returns the reply.

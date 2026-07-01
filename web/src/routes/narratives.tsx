@@ -9,6 +9,7 @@ import {
   listArticles, listNarratives, listAlerts,
   type Article, type Narrative, type Alert,
 } from "../lib/public";
+import { useTranslated } from "../lib/translate";
 
 // Relative "Xh ago" from an ISO timestamp (best-effort).
 function ago(iso?: string | null): string {
@@ -42,6 +43,13 @@ export function Narratives() {
     listAlerts().then((a) => setAlerts(a.filter((x) => !x.acknowledged))).catch(() => {});
   }, []);
 
+  // Translate the live data to Arabic via Cortex (cached) when the UI is Arabic.
+  const artTitles = useTranslated(articles.map((a) => a.title), ar);
+  const artSums = useTranslated(articles.map((a) => a.summary || a.why_it_matters || ""), ar);
+  const narrTitles = useTranslated(narratives.map((n) => n.title), ar);
+  const narrSnips = useTranslated(narratives.map((n) => n.body_md.replace(/[#*_>-]/g, "").slice(0, 160)), ar);
+  const alertTitles = useTranslated(alerts.map((a) => a.title), ar);
+
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
       <PublicNav />
@@ -68,7 +76,7 @@ export function Narratives() {
                   {tx("Signals are syncing from Scout. Check back shortly.", "تتم مزامنة الإشارات من سكاوت. عُد قريبًا.")}
                 </div>
               )}
-              {articles.slice(0, 12).map((a) => (
+              {articles.slice(0, 12).map((a, i) => (
                 <a key={a.id} href={a.url || undefined} target="_blank" rel="noreferrer"
                   className="lrow rounded-[13px] border border-border p-[18px] transition-colors" style={{ background: "hsl(var(--card))" }}>
                   <div className="mb-2 flex items-center gap-2.5">
@@ -76,9 +84,9 @@ export function Narratives() {
                     {a.source_name && <span className="mono text-[11px] text-muted-foreground">{a.source_name}</span>}
                     {a.published_at && <span className="mono text-[11px] text-muted-foreground/60">· {ago(a.published_at)}</span>}
                   </div>
-                  <div className="font-display text-base font-semibold leading-snug">{a.title}</div>
+                  <div className="font-display text-base font-semibold leading-snug">{ar ? artTitles[i] || a.title : a.title}</div>
                   {(a.summary || a.why_it_matters) && (
-                    <div className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">{a.summary || a.why_it_matters}</div>
+                    <div className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">{ar ? artSums[i] || a.summary || a.why_it_matters : a.summary || a.why_it_matters}</div>
                   )}
                 </a>
               ))}
@@ -90,7 +98,7 @@ export function Narratives() {
             <div>
               <h2 className="font-display mb-3.5 text-base font-semibold">{tx("Synthesized narratives", "روايات مُركّبة")}</h2>
               <div className="flex flex-col gap-3">
-                {narratives.slice(0, 5).map((n) => (
+                {narratives.slice(0, 5).map((n, i) => (
                   <Link key={n.id} to="/narratives/$id" params={{ id: n.id }}
                     className="rounded-[13px] border border-border p-[18px] transition-colors hover:border-primary/40"
                     style={{ background: "linear-gradient(180deg,hsl(var(--card)),hsl(var(--background)))" }}>
@@ -98,8 +106,8 @@ export function Narratives() {
                       <Sparkles className="h-3.5 w-3.5" style={{ color: "#8B79E0" }} />
                       <span className="mono text-[10px] tracking-wide" style={{ color: "#A390E8" }}>{tx("CORTEX NARRATIVE", "رواية كورتكس")}</span>
                     </div>
-                    <div className="font-display text-[15px] font-semibold leading-snug">{n.title}</div>
-                    <div className="mt-1.5 line-clamp-2 text-[12.5px] leading-relaxed text-muted-foreground">{n.body_md.replace(/[#*_>-]/g, "").slice(0, 160)}</div>
+                    <div className="font-display text-[15px] font-semibold leading-snug">{ar ? narrTitles[i] || n.title : n.title}</div>
+                    <div className="mt-1.5 line-clamp-2 text-[12.5px] leading-relaxed text-muted-foreground">{ar ? narrSnips[i] || "" : n.body_md.replace(/[#*_>-]/g, "").slice(0, 160)}</div>
                   </Link>
                 ))}
                 {narratives.length === 0 && (
@@ -113,13 +121,13 @@ export function Narratives() {
             <div>
               <h2 className="font-display mb-3.5 text-base font-semibold">{tx("Classified alerts", "تنبيهات مصنّفة")}</h2>
               <div className="flex flex-col gap-2.5">
-                {alerts.slice(0, 8).map((al) => (
+                {alerts.slice(0, 8).map((al, i) => (
                   <div key={al.id} className="flex items-start gap-3 rounded-xl border border-border p-[14px_16px]" style={{ background: "hsl(var(--card))" }}>
                     <span className={`mono ${sevClass[al.severity] ?? "sev-low"} mt-0.5 shrink-0 rounded-[5px] border px-2 py-0.5 text-[9.5px]`}>
                       {sevLabel[al.severity] ?? al.severity.toUpperCase()}
                     </span>
                     <div>
-                      <div className="text-[13.5px] font-medium leading-snug text-foreground">{al.title}</div>
+                      <div className="text-[13.5px] font-medium leading-snug text-foreground">{ar ? alertTitles[i] || al.title : al.title}</div>
                       <div className="mono mt-1 text-[10.5px] capitalize text-muted-foreground/70">{(al.signal || "").replace(/_/g, " ")}{al.summary ? ` · ${al.summary}` : ""}</div>
                     </div>
                   </div>

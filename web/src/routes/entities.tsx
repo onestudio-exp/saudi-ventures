@@ -5,6 +5,7 @@ import { Badge, Input, useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { listEntities, type Entity } from "../lib/public";
+import { useTranslated } from "../lib/translate";
 
 const MAX_RENDER = 120;
 
@@ -48,6 +49,15 @@ export function Entities() {
   }, [entities, q, kind]);
 
   const shown = filtered.slice(0, MAX_RENDER);
+
+  // Translate the distinct kinds/sectors to Arabic via Cortex (cached) so the
+  // category labels flip too — a small, bounded set (not per-card).
+  const kindList = useMemo(() => [...new Set(entities.map((e) => e.kind).filter(Boolean))], [entities]);
+  const sectorList = useMemo(() => [...new Set(entities.map((e) => e.sector).filter(Boolean) as string[])], [entities]);
+  const kindTr = useTranslated(kindList, ar);
+  const sectorTr = useTranslated(sectorList, ar);
+  const trKind = (k: string) => (ar ? kindTr[kindList.indexOf(k)] || k : k);
+  const trSector = (s?: string | null) => (ar && s ? sectorTr[sectorList.indexOf(s)] || s : s);
 
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
@@ -96,7 +106,7 @@ export function Entities() {
                     : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
                 }`}
               >
-                {k} ({n})
+                {trKind(k)} ({n})
               </button>
             ))}
           </div>
@@ -124,9 +134,9 @@ export function Entities() {
                     <div className="min-w-0">
                       <div className="truncate font-semibold leading-tight">{e.name}</div>
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                        <Badge variant="outline" className="capitalize">{e.kind}</Badge>
+                        <Badge variant="outline" className="capitalize">{trKind(e.kind)}</Badge>
                         {e.sector && (
-                          <span className="text-xs text-muted-foreground">{e.sector}</span>
+                          <span className="text-xs text-muted-foreground">{trSector(e.sector)}</span>
                         )}
                       </div>
                     </div>

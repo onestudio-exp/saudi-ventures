@@ -7,7 +7,7 @@ import { LeadForm } from "../components/public/LeadForm";
 import { Markdown } from "../components/public/Markdown";
 import { ChatFab } from "../components/public/ChatFab";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
-import { getAgentBySlug, listNarratives, AGENT_PERSONAS, MODULE_LABEL, type Agent, type Narrative } from "../lib/public";
+import { getAgentBySlug, listNarratives, AGENT_PERSONAS, moduleLabel, type Agent, type Narrative } from "../lib/public";
 import { useTranslated, useTranslatedMarkdown } from "../lib/translate";
 
 // Agent module -> lucide component.
@@ -39,8 +39,10 @@ export function AgentSection() {
   const persona = AGENT_PERSONAS[slug];
 
   // Translate the agent's description + AI brief to Arabic via Cortex when RTL.
-  const descTr = useTranslated([agent?.description ?? ""], ar && !!agent)[0];
+  const [descTr, tagTr] = useTranslated([agent?.description ?? "", agent?.tagline ?? ""], ar && !!agent);
   const description = ar ? descTr || agent?.description : agent?.description;
+  const tagline = ar ? tagTr || agent?.tagline : agent?.tagline;
+  const character = persona ? (ar ? persona.character_ar : persona.character) : "";
   const briefMd = useTranslatedMarkdown(brief?.body_md, ar && !!brief);
 
   return (
@@ -68,12 +70,12 @@ export function AgentSection() {
                   </span>
                   <div>
                     <h1 className="font-display text-3xl">{agent.name}</h1>
-                    <div className="kicker mt-1.5">{MODULE_LABEL[agent.module] ?? agent.name}{agent.tagline ? ` · ${agent.tagline}` : ""}</div>
+                    <div className="kicker mt-1.5">{moduleLabel(agent.module, ar)}{tagline ? ` · ${tagline}` : ""}</div>
                   </div>
                 </div>
-                {persona && (
+                {character && (
                   <p className="mt-5 text-lg leading-relaxed text-foreground/90" style={{ fontStyle: "italic" }}>
-                    “{persona.character}.”
+                    “{character}.”
                   </p>
                 )}
                 {description && <p className="mt-3 leading-relaxed text-muted-foreground">{description}</p>}

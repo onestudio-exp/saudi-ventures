@@ -8,7 +8,8 @@ import { SubscribeBar } from "../components/public/SubscribeBar";
 import { RadarPanel, type RadarSignal } from "../components/public/RadarPanel";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { PublicFooter } from "../components/public/PublicFooter";
-import { listAgents, listAlerts, listEntities, listNarratives, MODULE_LABEL, type Agent, type Entity, type Narrative } from "../lib/public";
+import { listAgents, listAlerts, listEntities, listNarratives, moduleLabel, type Agent, type Entity, type Narrative } from "../lib/public";
+import { useTranslated } from "../lib/translate";
 
 export function Home() {
   const { language } = useT();
@@ -67,6 +68,15 @@ export function Home() {
         { label: tx("Classified alerts", "تنبيهات مصنّفة"), tag: "ALERT", type: "alert" },
       ];
 
+  // Translate dynamic data (agent taglines, radar signal titles, directory blurbs +
+  // kinds) to Arabic via Cortex, cached — so the data flips, not just the labels.
+  const agentTaglines = useTranslated(agents.map((a) => a.tagline ?? ""), ar);
+  const sigTr = useTranslated(radarSignals.map((s) => s.label), ar);
+  const radarSignalsL = ar ? radarSignals.map((s, i) => ({ ...s, label: sigTr[i] || s.label })) : radarSignals;
+  const previewEntities = entities.slice(0, 6);
+  const previewDesc = useTranslated(previewEntities.map((e) => e.description || e.sector || ""), ar);
+  const previewKinds = useTranslated(previewEntities.map((e) => e.kind), ar);
+
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
       <PublicNav />
@@ -121,7 +131,7 @@ export function Home() {
             </div>
           </div>
           <div className="reveal reveal-3">
-            <RadarPanel signals={radarSignals} />
+            <RadarPanel signals={radarSignalsL} />
           </div>
         </div>
       </section>
@@ -146,7 +156,7 @@ export function Home() {
           <span className="mono text-xs text-muted-foreground/70">{count} {tx("entities", "كيان")}</span>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {entities.slice(0, 6).map((e) => (
+          {previewEntities.map((e, i) => (
             <Link key={e.slug} to="/entities/$slug" params={{ slug: e.slug }}
               className="ecard group rounded-2xl border border-border p-5" style={{ background: "hsl(var(--card))" }}>
               <div className="mb-4 flex items-center justify-between">
@@ -154,9 +164,9 @@ export function Home() {
                 {e.claimed && <span className="mono rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[10px] text-primary">✓ {tx("CLAIMED", "موثّق")}</span>}
               </div>
               <div className="font-display truncate text-lg font-semibold">{e.name}</div>
-              {(e.description || e.sector) && <div className="mt-1 line-clamp-2 min-h-[2.4rem] text-[13px] leading-relaxed text-muted-foreground">{e.description || e.sector}</div>}
+              {(e.description || e.sector) && <div className="mt-1 line-clamp-2 min-h-[2.4rem] text-[13px] leading-relaxed text-muted-foreground">{ar ? previewDesc[i] || e.description || e.sector : e.description || e.sector}</div>}
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="mono rounded-md border border-border px-2 py-0.5 text-[10.5px] text-muted-foreground" style={{ background: "hsl(var(--secondary))" }}>{e.kind}</span>
+                <span className="mono rounded-md border border-border px-2 py-0.5 text-[10.5px] text-muted-foreground" style={{ background: "hsl(var(--secondary))" }}>{ar ? previewKinds[i] || e.kind : e.kind}</span>
                 {e.headquarters && <span className="mono text-[10.5px] text-muted-foreground/70">{e.headquarters}</span>}
               </div>
             </Link>
@@ -180,15 +190,16 @@ export function Home() {
             </div>
           </div>
           <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-            {agents.map((a) => {
-              const role = MODULE_LABEL[a.module] ?? a.name;
+            {agents.map((a, i) => {
+              const role = moduleLabel(a.module, ar);
+              const tag = ar ? agentTaglines[i] || a.tagline : a.tagline;
               return (
                 <Link key={a.slug} to="/agents/$slug" params={{ slug: a.slug }}
                   className="ecard rounded-2xl border border-border p-5" style={{ background: "hsl(var(--card))" }}>
                   <BadgeAvatar name={a.name} size={44} radius={12} />
                   <div className="font-display mt-3.5 text-base font-semibold">{a.name}</div>
                   <div className="mono mt-0.5 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{role}</div>
-                  {a.tagline && <p className="mt-2.5 text-[12.5px] leading-relaxed text-muted-foreground">{a.tagline}</p>}
+                  {tag && <p className="mt-2.5 text-[12.5px] leading-relaxed text-muted-foreground">{tag}</p>}
                 </Link>
               );
             })}
