@@ -5,6 +5,7 @@ import { useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
 import { ChatFab } from "../components/public/ChatFab";
+import { SmartActions } from "../components/public/SmartActions";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { Markdown } from "../components/public/Markdown";
 import { getEntityBySlug, listEntities, entityBrief, entityReport, displayName, AGENT_PERSONAS, type Entity } from "../lib/public";
@@ -164,6 +165,14 @@ export function EntityProfile() {
                       </div>
                     )}
                   </div>
+                  <SmartActions
+                    entity={slug}
+                    actions={[
+                      { label: tx("TL;DR", "خلاصة سريعة"), prompt: "Give me a single-sentence takeaway on this entity." },
+                      { label: tx("Why it matters", "لماذا يهم"), prompt: "In 2 sentences, why does this entity matter in the Saudi venture ecosystem?" },
+                      { label: tx("Key facts", "حقائق أساسية"), prompt: "List the 4 most important facts about this entity as bullet points." },
+                    ]}
+                  />
                 </section>
 
                 {/* Ecosystem context — derived positioning within the tracked dataset */}
@@ -198,6 +207,15 @@ export function EntityProfile() {
                       </div>
                     )}
                   </div>
+                  <SmartActions
+                    entity={slug}
+                    actions={[
+                      { label: tx("Top risks", "أبرز المخاطر"), prompt: "What are the top 3 risks or challenges for this entity? Bullet points." },
+                      { label: tx("Competitors", "المنافسون"), prompt: "Who are its main competitors or peers in Saudi Arabia?" },
+                      { label: tx("Opportunities", "الفرص"), prompt: "What are its top 3 opportunities? Bullet points." },
+                      { label: tx("Strengths", "نقاط القوة"), prompt: "What are its key strengths and advantages?" },
+                    ]}
+                  />
                 </section>
 
                 {entity.description && (

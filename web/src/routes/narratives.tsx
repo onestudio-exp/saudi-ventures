@@ -80,8 +80,8 @@ export function Narratives() {
         </div>
 
         <div className="grid items-start gap-6 lg:grid-cols-[1.5fr_1fr]">
-          {/* live signals */}
-          <div>
+          {/* live signals (secondary — the Scout live feed; may be empty) */}
+          <div className="order-2">
             <h2 className="font-display mb-3.5 text-base font-semibold">{tx("Live signals", "إشارات مباشرة")}</h2>
             <div className="flex flex-col gap-2.5">
               {signals.length === 0 && (
@@ -106,8 +106,8 @@ export function Narratives() {
             </div>
           </div>
 
-          {/* narratives + alerts */}
-          <div className="flex flex-col gap-6">
+          {/* synthesized narratives + alerts (primary — the real intelligence) */}
+          <div className="order-1 flex flex-col gap-6">
             <div>
               <h2 className="font-display mb-3.5 text-base font-semibold">{tx("Synthesized narratives", "روايات مُركّبة")}</h2>
               <div className="flex flex-col gap-3">
