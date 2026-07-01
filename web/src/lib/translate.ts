@@ -10,7 +10,7 @@ function cacheGet(target: string, text: string): string | undefined {
   const k = keyOf(target, text);
   if (mem.has(k)) return mem.get(k);
   try {
-    const v = sessionStorage.getItem("t8n:" + k);
+    const v = sessionStorage.getItem("t8n2:" + k);
     if (v != null) { mem.set(k, v); return v; }
   } catch { /* ignore */ }
   return undefined;
@@ -18,7 +18,7 @@ function cacheGet(target: string, text: string): string | undefined {
 function cacheSet(target: string, text: string, val: string) {
   const k = keyOf(target, text);
   mem.set(k, val);
-  try { sessionStorage.setItem("t8n:" + k, val); } catch { /* ignore */ }
+  try { sessionStorage.setItem("t8n2:" + k, val); } catch { /* ignore */ }
 }
 
 // translateTexts returns each input translated to `target` (order preserved).
