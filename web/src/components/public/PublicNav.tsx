@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Lock, Sun, Moon, Languages } from "lucide-react";
+import { Sun, Moon, Languages } from "lucide-react";
 import { useT } from "@togo-framework/ui";
 
 // Apply a theme choice the same way index.html's no-flash script does.
@@ -88,9 +88,6 @@ export function PublicNav() {
           >
             {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
-          <Link to="/login" className="inline-flex items-center gap-1.5 rounded-[9px] border border-border px-3.5 py-2 text-sm text-foreground/90 transition-colors hover:bg-accent">
-            <Lock className="h-3.5 w-3.5" /> {tx("Admin", "الإدارة")}
-          </Link>
         </div>
       </nav>
     </header>

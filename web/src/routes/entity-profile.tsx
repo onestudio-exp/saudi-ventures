@@ -7,7 +7,7 @@ import { LeadForm } from "../components/public/LeadForm";
 import { ChatFab } from "../components/public/ChatFab";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { Markdown } from "../components/public/Markdown";
-import { getEntityBySlug, listEntities, entityBrief, displayName, AGENT_PERSONAS, type Entity } from "../lib/public";
+import { getEntityBySlug, listEntities, entityBrief, entityReport, displayName, AGENT_PERSONAS, type Entity } from "../lib/public";
 import { useTranslated } from "../lib/translate";
 
 // Which persona "watches" an entity, by kind — always the news radar plus one specialist.
@@ -31,10 +31,20 @@ export function EntityProfile() {
   const [similar, setSimilar] = useState<Entity[]>([]);
   const [brief, setBrief] = useState<string>("");
   const [briefLoading, setBriefLoading] = useState(false);
+  const [report, setReport] = useState<string>("");
+  const [eco, setEco] = useState<{ sector: number; kind: number; total: number }>({ sector: 0, kind: 0, total: 0 });
 
   useEffect(() => {
     getEntityBySlug(slug).then((e) => setEntity(e ?? null)).catch(() => setEntity(null));
   }, [slug]);
+
+  // Deep, multi-section intelligence report (Cortex, cached per entity + language).
+  useEffect(() => {
+    if (!entity) return;
+    setReport("");
+    entityReport(entity.slug, entity.name, entity.kind, entity.sector ?? "", entity.headquarters ?? "", entity.metadata ?? "", language)
+      .then(setReport).catch(() => setReport(""));
+  }, [entity?.slug, language]);
 
   // Auto-generate a short Cortex intelligence brief for this entity (cached per
   // entity + language; replies in the active UI language).
@@ -54,7 +64,14 @@ export function EntityProfile() {
   useEffect(() => {
     if (!entity) return;
     listEntities(2000)
-      .then((all) => setSimilar(all.filter((e) => e.kind === entity.kind && e.slug !== entity.slug).slice(0, 3)))
+      .then((all) => {
+        setSimilar(all.filter((e) => e.kind === entity.kind && e.slug !== entity.slug).slice(0, 3));
+        setEco({
+          sector: entity.sector ? all.filter((e) => e.sector === entity.sector).length : 0,
+          kind: all.filter((e) => e.kind === entity.kind).length,
+          total: all.length,
+        });
+      })
       .catch(() => {});
   }, [entity?.slug]);
 
@@ -144,6 +161,40 @@ export function EntityProfile() {
                         <div className="h-3 w-11/12 animate-pulse rounded bg-muted" />
                         <div className="h-3 w-full animate-pulse rounded bg-muted" />
                         <div className="h-3 w-4/5 animate-pulse rounded bg-muted" />
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                {/* Ecosystem context — derived positioning within the tracked dataset */}
+                <div className="mt-6 grid grid-cols-3 gap-4">
+                  {[
+                    { v: eco.kind, l: tx(`Peers in ${entity.kind}`, `نظائر في ${kindL}`) },
+                    { v: eco.sector, l: entity.sector ? tx(`In ${entity.sector}`, `في ${sectorL}`) : tx("Sector", "القطاع") },
+                    { v: eco.total, l: tx("Ecosystem total", "إجمالي المنظومة") },
+                  ].map((s, i) => (
+                    <div key={i} className="surface-card rounded-2xl p-4">
+                      <div className="font-display tabular text-2xl font-semibold">{s.v.toLocaleString()}</div>
+                      <div className="kicker mt-1 text-[10px]">{s.l}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Deep AI intelligence report — Cortex, multi-section dossier */}
+                <section className="surface-card mt-6 rounded-2xl p-6">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <span className="kicker">{tx("Intelligence Report", "تقرير استخباراتي")}</span>
+                    {!report && <span data-pulse className="ms-auto h-1.5 w-1.5 rounded-full bg-primary" />}
+                  </div>
+                  <div className="mt-3">
+                    {report ? (
+                      <Markdown text={report} />
+                    ) : (
+                      <div className="space-y-2.5">
+                        {[10, 12, 8, 11, 12, 7].map((w, i) => (
+                          <div key={i} className="h-3 animate-pulse rounded bg-muted" style={{ width: `${w * 8}%` }} />
+                        ))}
                       </div>
                     )}
                   </div>

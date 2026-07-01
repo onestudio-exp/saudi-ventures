@@ -198,6 +198,23 @@ export async function entityBrief(slug: string, name: string, lang: string): Pro
   return reply;
 }
 
+// entityReport generates a structured multi-section intelligence report on an entity
+// (Role & Positioning / Ecosystem Fit / Strategic Outlook), grounded in its record,
+// replied in `lang`. Cached per entity + language. This is the deep dossier content.
+export async function entityReport(
+  slug: string, name: string, kind: string, sector: string, hq: string, metadata: string, lang: string,
+): Promise<string> {
+  const key = `report:${lang}:${slug}`;
+  try { const c = sessionStorage.getItem(key); if (c) return c; } catch { /* ignore */ }
+  const rec = (metadata || "").slice(0, 2200);
+  const prompt = lang === "ar"
+    ? `أنت محلّل أول في منصة "ريادة الأعمال السعودية للذكاء". اكتب تقرير استخبارات منظّمًا عن "${name}" (النوع: ${kind}، القطاع: ${sector}، المقر: ${hq}) ومكانته في منظومة ريادة الأعمال السعودية. استخدم بالضبط هذه الأقسام بعناوين markdown من مستوى ثالث: ### الدور والتموضع، ### الملاءمة ضمن المنظومة، ### النظرة الاستراتيجية وما يجب مراقبته. جملتان إلى ثلاث لكل قسم، تحليلية ومحددة. استند إلى السجل: ${rec}. إن كانت البيانات محدودة فاستنتج من فئة الكيان وسياق السوق السعودي. بدون مقدمات.`
+    : `You are a senior analyst at Saudi Ventures Intelligence. Write a structured intelligence report on "${name}" (kind: ${kind}, sector: ${sector}, HQ: ${hq}) and its place in the Saudi venture ecosystem. Use exactly these markdown H3 sections: ### Role & Positioning, ### Ecosystem Fit, ### Strategic Outlook & What to Watch. 2-3 sentences each, analytical and specific. Ground it in this record: ${rec}. If data is limited, reason from the entity's category and Saudi market context. No preamble.`;
+  const reply = await chat([{ role: "user", content: prompt }], { entity: slug, lang });
+  try { sessionStorage.setItem(key, reply); } catch { /* ignore */ }
+  return reply;
+}
+
 // capabilityBrief returns a short Cortex intelligence brief on a capability's
 // domain within the Saudi ecosystem, in `lang`. Cached per capability + language.
 export async function capabilityBrief(slug: string, name: string, desc: string, lang: string): Promise<string> {
