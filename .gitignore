@@ -17,3 +17,7 @@
 *.db-wal
 *.sqlite
 *.sqlite3
+
+# Playwright MCP scratch
+.playwright-mcp/
+*-ar.png

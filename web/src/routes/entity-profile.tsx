@@ -64,7 +64,8 @@ export function EntityProfile() {
   })();
   const storedBrief = typeof meta.ai_brief === "string" ? (meta.ai_brief as string) : "";
   const details = (() => {
-    const hide = new Set(["id", "name", "logo_url", "is_active", "is_hidden", "sort_order", "created_at", "updated_at", "description", "website", "country_id", "original_page", "featured", "channel_id", "ingest_metadata", "ai_brief"]);
+    // name_ar is hidden because the title already renders it in AR.
+    const hide = new Set(["id", "name", "name_ar", "logo_url", "is_active", "is_hidden", "sort_order", "created_at", "updated_at", "description", "website", "country_id", "original_page", "featured", "channel_id", "ingest_metadata", "ai_brief"]);
     const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(s);
     return Object.entries(meta).filter(([k, v]) => !hide.has(k) && v !== null && v !== "" && typeof v !== "object" && !isUUID(String(v)));
   })();
@@ -75,6 +76,13 @@ export function EntityProfile() {
   const descTr = useTranslated([entity?.description ?? ""], ar && !!entity)[0];
   const storedBriefTr = useTranslated([storedBrief], ar && !!entity && !!storedBrief)[0];
   const description = ar ? descTr || entity?.description : entity?.description;
+
+  // Translate kind + sector (chips + key facts) and the Details table keys/values.
+  const [kindTr, sectorTr] = useTranslated([entity?.kind ?? "", entity?.sector ?? ""], ar && !!entity);
+  const kindL = ar ? kindTr || entity?.kind : entity?.kind;
+  const sectorL = ar ? sectorTr || entity?.sector : entity?.sector;
+  const detailKeysTr = useTranslated(details.map(([k]) => label(k)), ar && !!entity);
+  const detailValsTr = useTranslated(details.map(([, v]) => String(v)), ar && !!entity);
   // Prefer the pre-generated brief (translated in AR); else the on-demand one.
   const shownBrief = storedBrief ? (ar ? storedBriefTr || storedBrief : storedBrief) : brief;
 
@@ -105,7 +113,7 @@ export function EntityProfile() {
                 </div>
                 {description && <p className="mt-3 max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">{description}</p>}
                 <div className="mt-3.5 flex flex-wrap gap-2">
-                  {[entity.kind, entity.sector, entity.headquarters, entity.founded_year ? `${tx("Founded", "تأسست")} ${entity.founded_year}` : null]
+                  {[kindL, sectorL, entity.headquarters, entity.founded_year ? `${tx("Founded", "تأسست")} ${entity.founded_year}` : null]
                     .filter(Boolean)
                     .map((chip, i) => (
                       <span key={i} className="mono rounded-md border border-border px-2.5 py-1 text-[11px] capitalize text-muted-foreground" style={{ background: "hsl(var(--secondary))" }}>{chip as string}</span>
@@ -152,10 +160,10 @@ export function EntityProfile() {
                   <>
                     <h2 className="font-display mt-8 text-[17px] font-semibold">{tx("Details", "التفاصيل")}</h2>
                     <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-1.5 sm:grid-cols-2">
-                      {details.map(([k, v]) => (
+                      {details.map(([k, v], i) => (
                         <div key={k} className="flex items-start justify-between gap-3 border-b border-border/50 py-1.5 text-sm">
-                          <dt className="text-muted-foreground">{label(k)}</dt>
-                          <dd className="text-end font-medium">{String(v)}</dd>
+                          <dt className="text-muted-foreground">{ar ? detailKeysTr[i] || label(k) : label(k)}</dt>
+                          <dd className="text-end font-medium">{ar ? detailValsTr[i] || String(v) : String(v)}</dd>
                         </div>
                       ))}
                     </dl>
@@ -192,8 +200,8 @@ export function EntityProfile() {
                         <a href={entity.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 truncate text-primary hover:underline"><Globe className="h-3.5 w-3.5" /> {tx("Visit", "زيارة")}</a>
                       </div>
                     )}
-                    <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{tx("Type", "النوع")}</span><span className="capitalize">{entity.kind}</span></div>
-                    {entity.sector && <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{tx("Sector", "القطاع")}</span><span>{entity.sector}</span></div>}
+                    <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{tx("Type", "النوع")}</span><span className="capitalize">{kindL}</span></div>
+                    {entity.sector && <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{tx("Sector", "القطاع")}</span><span>{sectorL}</span></div>}
                     {entity.headquarters && <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">HQ</span><span>{entity.headquarters}</span></div>}
                     {entity.founded_year && <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{tx("Founded", "التأسيس")}</span><span>{entity.founded_year}</span></div>}
                   </div>
