@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "@tanstack/react-router";
-import { ArrowRight, ArrowLeft, Globe, MapPin, Calendar } from "lucide-react";
-import { Badge, useT } from "@togo-framework/ui";
+import { ArrowRight, ArrowLeft, Globe, ShieldCheck } from "lucide-react";
+import { useT } from "@togo-framework/ui";
 import { PublicNav } from "../components/public/PublicNav";
 import { LeadForm } from "../components/public/LeadForm";
 import { ChatFab } from "../components/public/ChatFab";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
-import { getEntityBySlug, type Entity } from "../lib/public";
+import { getEntityBySlug, listEntities, AGENT_PERSONAS, type Entity } from "../lib/public";
 
-// Gradient initials badge (design system), with the logo layered on when present.
-function EntityLogo({ entity }: { entity: Entity }) {
-  return <BadgeAvatar name={entity.name} logoUrl={entity.logo_url} size={72} radius={18} />;
+// Which persona "watches" an entity, by kind — always the news radar plus one specialist.
+function watchers(kind: string): string[] {
+  const k = kind.toLowerCase();
+  if (k.includes("vc") || k.includes("investor") || k.includes("fund")) return ["news-radar", "investment"];
+  if (k.includes("startup")) return ["news-radar", "list-of-startups"];
+  return ["news-radar", "sectors-market"];
 }
 
 export function EntityProfile() {
@@ -23,17 +26,36 @@ export function EntityProfile() {
   const slug = params.slug ?? "";
 
   const [entity, setEntity] = useState<Entity | null | undefined>(undefined);
+  const [similar, setSimilar] = useState<Entity[]>([]);
 
   useEffect(() => {
     getEntityBySlug(slug).then((e) => setEntity(e ?? null)).catch(() => setEntity(null));
   }, [slug]);
 
+  useEffect(() => {
+    if (!entity) return;
+    listEntities(2000)
+      .then((all) => setSimilar(all.filter((e) => e.kind === entity.kind && e.slug !== entity.slug).slice(0, 3)))
+      .catch(() => {});
+  }, [entity?.slug]);
+
+  // Parse the source record for the Details table.
+  const details = (() => {
+    if (!entity) return [] as [string, unknown][];
+    let meta: Record<string, unknown> = {};
+    try { meta = entity.metadata ? JSON.parse(entity.metadata) : {}; } catch { meta = {}; }
+    const hide = new Set(["id", "name", "logo_url", "is_active", "is_hidden", "sort_order", "created_at", "updated_at", "description", "website", "country_id", "original_page", "featured", "channel_id", "ingest_metadata"]);
+    const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(s);
+    return Object.entries(meta).filter(([k, v]) => !hide.has(k) && v !== null && v !== "" && typeof v !== "object" && !isUUID(String(v)));
+  })();
+  const label = (k: string) => k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
       <PublicNav />
-      <div className="mx-auto max-w-3xl px-6 py-12">
-        <Link to="/entities" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <Arrow className="h-4 w-4 rotate-180" /> {tx("Back to directory", "العودة إلى الدليل")}
+      <div className="mx-auto max-w-6xl px-6 py-8 pb-20">
+        <Link to="/entities" className="mono inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+          <Arrow className="h-3.5 w-3.5 rotate-180" /> {tx("Back to directory", "العودة إلى الدليل")}
         </Link>
 
         {entity === undefined && <p className="mt-8 text-sm text-muted-foreground">{tx("Loading…", "جارٍ التحميل…")}</p>}
@@ -41,81 +63,117 @@ export function EntityProfile() {
 
         {entity && (
           <>
-            <header className="mt-6 flex items-start gap-4">
-              <EntityLogo entity={entity} />
-              <div className="min-w-0">
-                <h1 className="font-display text-4xl">{entity.name}</h1>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <Badge className="capitalize">{entity.kind}</Badge>
-                  {entity.sector && <Badge variant="outline">{entity.sector}</Badge>}
-                  {entity.claimed && <Badge variant="outline">{tx("Claimed", "موثّق")}</Badge>}
+            {/* header */}
+            <div className="mt-6 flex flex-wrap items-start gap-5 border-b border-border pb-7">
+              <BadgeAvatar name={entity.name} logoUrl={entity.logo_url} size={76} radius={18} />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="font-display text-3xl font-semibold">{entity.name}</h1>
+                  {entity.claimed && (
+                    <span className="mono inline-flex items-center gap-1 rounded-full border border-[#1C3A2C] bg-[#12271E] px-2.5 py-1 text-[10.5px] text-[#5FE0AE]">
+                      <ShieldCheck className="h-3 w-3" /> {tx("CLAIMED PROFILE", "ملف موثّق")}
+                    </span>
+                  )}
+                </div>
+                {entity.description && <p className="mt-3 max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">{entity.description}</p>}
+                <div className="mt-3.5 flex flex-wrap gap-2">
+                  {[entity.kind, entity.sector, entity.headquarters, entity.founded_year ? `${tx("Founded", "تأسست")} ${entity.founded_year}` : null]
+                    .filter(Boolean)
+                    .map((chip, i) => (
+                      <span key={i} className="mono rounded-md border border-border px-2.5 py-1 text-[11px] capitalize text-muted-foreground" style={{ background: "#161D26" }}>{chip as string}</span>
+                    ))}
                 </div>
               </div>
-            </header>
+              <a href="#claim" className="inline-flex shrink-0 items-center gap-2 rounded-[9px] bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">
+                <ShieldCheck className="h-4 w-4" /> {tx("Claim this profile", "طالب بهذا الملف")}
+              </a>
+            </div>
 
-            {/* Meta row */}
-            {(entity.headquarters || entity.founded_year || entity.website) && (
-              <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-                {entity.headquarters && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <MapPin className="h-4 w-4" /> {entity.headquarters}
-                  </span>
+            {/* two-column body */}
+            <div className="mt-8 grid gap-9 lg:grid-cols-[1fr_320px]">
+              {/* main */}
+              <div>
+                {entity.description && (
+                  <>
+                    <h2 className="font-display text-[17px] font-semibold">{tx("About", "نبذة")}</h2>
+                    <p className="mt-3 text-[14.5px] leading-[1.7] text-foreground/85">{entity.description}</p>
+                  </>
                 )}
-                {entity.founded_year && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4" /> {tx("Founded", "تأسست")} {entity.founded_year}
-                  </span>
+
+                {details.length > 0 && (
+                  <>
+                    <h2 className="font-display mt-8 text-[17px] font-semibold">{tx("Details", "التفاصيل")}</h2>
+                    <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-1.5 sm:grid-cols-2">
+                      {details.map(([k, v]) => (
+                        <div key={k} className="flex items-start justify-between gap-3 border-b border-border/50 py-1.5 text-sm">
+                          <dt className="text-muted-foreground">{label(k)}</dt>
+                          <dd className="text-end font-medium">{String(v)}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </>
                 )}
-                {entity.website && (
-                  <a
-                    href={entity.website}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-primary hover:underline"
-                  >
-                    <Globe className="h-4 w-4" /> {tx("Website", "الموقع الإلكتروني")}
-                  </a>
+
+                {similar.length > 0 && (
+                  <>
+                    <h2 className="font-display mt-8 text-[17px] font-semibold">{tx("Similar companies", "شركات مشابهة")}</h2>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                      {similar.map((s) => (
+                        <Link key={s.slug} to="/entities/$slug" params={{ slug: s.slug }}
+                          className="ecard flex items-center gap-3 rounded-xl border border-border p-3.5" style={{ background: "#10151D" }}>
+                          <BadgeAvatar name={s.name} logoUrl={s.logo_url} size={36} radius={9} />
+                          <div className="min-w-0">
+                            <div className="truncate text-[13.5px] font-semibold">{s.name}</div>
+                            <div className="mono truncate text-[10.5px] text-muted-foreground/70">{s.sector || s.kind}</div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
-            )}
 
-            {entity.description && (
-              <p className="mt-6 leading-relaxed text-muted-foreground">{entity.description}</p>
-            )}
-
-            {/* Full details — every field from the source record (metadata jsonb). */}
-            {(() => {
-              let meta: Record<string, unknown> = {};
-              try {
-                meta = entity.metadata ? JSON.parse(entity.metadata) : {};
-              } catch {
-                meta = {};
-              }
-              const hide = new Set([
-                "id", "name", "logo_url", "is_active", "is_hidden", "sort_order",
-                "created_at", "updated_at", "description", "website",
-                "country_id", "original_page", "featured", "channel_id", "ingest_metadata",
-              ]);
-              const isUUID = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(s);
-              const entries = Object.entries(meta).filter(
-                ([k, v]) => !hide.has(k) && v !== null && v !== "" && typeof v !== "object" && !isUUID(String(v)),
-              );
-              if (entries.length === 0) return null;
-              const label = (k: string) => k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-              return (
-                <section className="surface-card mt-8 rounded-2xl p-6">
-                  <p className="kicker">{tx("Details", "التفاصيل")}</p>
-                  <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-1.5 sm:grid-cols-2">
-                    {entries.map(([k, v]) => (
-                      <div key={k} className="flex items-start justify-between gap-3 border-b border-border/50 py-1.5 text-sm">
-                        <dt className="text-muted-foreground">{label(k)}</dt>
-                        <dd className="text-end font-medium">{String(v)}</dd>
+              {/* sidebar */}
+              <div className="flex flex-col gap-4">
+                <div className="rounded-[14px] border border-border p-5" style={{ background: "#10151D" }}>
+                  <div className="mono mb-3.5 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{tx("Key facts", "حقائق أساسية")}</div>
+                  <div className="flex flex-col gap-3 text-[13px]">
+                    {entity.website && (
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">{tx("Website", "الموقع")}</span>
+                        <a href={entity.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 truncate text-primary hover:underline"><Globe className="h-3.5 w-3.5" /> {tx("Visit", "زيارة")}</a>
                       </div>
-                    ))}
-                  </dl>
-                </section>
-              );
-            })()}
+                    )}
+                    <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{tx("Type", "النوع")}</span><span className="capitalize">{entity.kind}</span></div>
+                    {entity.sector && <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{tx("Sector", "القطاع")}</span><span>{entity.sector}</span></div>}
+                    {entity.headquarters && <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">HQ</span><span>{entity.headquarters}</span></div>}
+                    {entity.founded_year && <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">{tx("Founded", "التأسيس")}</span><span>{entity.founded_year}</span></div>}
+                  </div>
+                </div>
+
+                <div className="rounded-[14px] border border-border p-5" style={{ background: "#10151D" }}>
+                  <div className="mono mb-3.5 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{tx("Agents watching", "وكلاء يراقبون")}</div>
+                  <div className="flex flex-col gap-3">
+                    {watchers(entity.kind).map((agSlug) => {
+                      const p = AGENT_PERSONAS[agSlug];
+                      const role = agSlug === "news-radar" ? tx("News Radar", "رادار الأخبار") : agSlug === "investment" ? tx("Investment Intel", "ذكاء الاستثمار") : agSlug === "list-of-startups" ? tx("Startup Directory", "دليل الشركات") : tx("Sectors & Market", "القطاعات والسوق");
+                      return (
+                        <Link key={agSlug} to="/agents/$slug" params={{ slug: agSlug }} className="flex items-center gap-3 hover:opacity-90">
+                          <BadgeAvatar name={p?.name ?? agSlug} size={32} radius={9} />
+                          <div><div className="text-[13px] font-semibold">{p?.name ?? agSlug}</div><div className="mono text-[10px] uppercase text-muted-foreground/70">{role}</div></div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* claim card */}
+                <div id="claim" className="scroll-mt-20 rounded-[14px] border border-[#1C3A2C] p-5" style={{ background: "#0C1D16" }}>
+                  <div className="text-[13px] leading-relaxed text-muted-foreground">{tx("Is this your company? Claim the profile to keep it accurate.", "هل هذه شركتك؟ طالب بالملف للحفاظ على دقته.")}</div>
+                  <div className="mt-4"><LeadForm sourceType="claim" sourcePage={`/entities/${slug}`} submitLabel={tx("Claim profile", "طالب بالملف")} /></div>
+                </div>
+              </div>
+            </div>
 
             {/* Floating "ask the AI about this entity" — per-entity intelligence on demand (Cortex) */}
             <ChatFab
@@ -128,17 +186,6 @@ export function EntityProfile() {
                 tx("How do they fit the Saudi ecosystem?", "كيف يندمجون في المنظومة السعودية؟"),
               ]}
             />
-
-            {/* Claim your profile — stored Lead (source_type=claim) */}
-            <section className="surface-card mt-10 rounded-2xl p-6">
-              <h2 className="text-lg font-semibold">{tx("Is this your organization?", "هل هذه مؤسستك؟")}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {tx("Claim your profile to keep it accurate and up to date.", "وثّق ملفك للحفاظ على دقته وتحديثه.")}
-              </p>
-              <div className="mt-4">
-                <LeadForm sourceType="claim" sourcePage={`/entities/${slug}`} />
-              </div>
-            </section>
           </>
         )}
       </div>

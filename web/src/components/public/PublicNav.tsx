@@ -14,7 +14,7 @@ export function PublicNav() {
     { to: "/", label: tx("Ecosystem", "المنظومة") },
     { to: "/entities", label: tx("Directory", "الدليل") },
     { to: "/narratives", label: tx("Radar", "الرادار") },
-    { to: "/alerts", label: tx("Alerts", "التنبيهات") },
+    { to: "/newsletter", label: tx("Newsletter", "النشرة") },
   ];
 
   return (

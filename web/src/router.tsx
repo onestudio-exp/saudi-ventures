@@ -10,6 +10,7 @@ import { AgentSection } from "./routes/agent-section";
 import { Narratives } from "./routes/narratives";
 import { NarrativeDetail } from "./routes/narrative-detail";
 import { Alerts } from "./routes/alerts";
+import { Newsletter } from "./routes/newsletter";
 import { Login } from "./routes/login";
 import { Register } from "./routes/register";
 import { Reset } from "./routes/reset";
@@ -24,6 +25,7 @@ const AdminHome = lazyRouteComponent(() => import("./routes/admin"), "AdminHome"
 const AdminResource = lazyRouteComponent(() => import("./routes/admin-resource"), "AdminResource");
 const Profile = lazyRouteComponent(() => import("./routes/profile"), "Profile");
 const AdminIntel = lazyRouteComponent(() => import("./routes/admin-intel"), "AdminIntel");
+const AdminLeads = lazyRouteComponent(() => import("./routes/admin-leads"), "AdminLeads");
 
 const rootRoute = createRootRoute({ component: () => (<Providers><Outlet /></Providers>) });
 
@@ -40,6 +42,7 @@ const agentSectionRoute = createRoute({ getParentRoute: () => rootRoute, path: "
 const narrativesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/narratives", component: Narratives });
 const narrativeDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: "/narratives/$id", component: NarrativeDetail });
 const alertsRoute = createRoute({ getParentRoute: () => rootRoute, path: "/alerts", component: Alerts });
+const newsletterRoute = createRoute({ getParentRoute: () => rootRoute, path: "/newsletter", component: Newsletter });
 const loginRoute = createRoute({ getParentRoute: () => rootRoute, path: "/login", component: Login, beforeLoad: redirectIfAuthed });
 const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: "/register", component: Register, beforeLoad: redirectIfAuthed });
 const resetRoute = createRoute({ getParentRoute: () => rootRoute, path: "/reset", component: Reset });
@@ -63,10 +66,11 @@ const adminRoute = createRoute({ getParentRoute: () => appRoute, path: "/admin",
 const resourceRoute = createRoute({ getParentRoute: () => appRoute, path: "/admin/$resource", component: AdminResource });
 const profileRoute = createRoute({ getParentRoute: () => appRoute, path: "/profile", component: Profile });
 const intelRoute = createRoute({ getParentRoute: () => appRoute, path: "/admin/intel", component: AdminIntel });
+const leadsRoute = createRoute({ getParentRoute: () => appRoute, path: "/admin/leads", component: AdminLeads });
 
 const routeTree = rootRoute.addChildren([
-  indexRoute, entitiesRoute, entityProfileRoute, capabilityRoute, agentSectionRoute, narrativesRoute, narrativeDetailRoute, alertsRoute, loginRoute, registerRoute, resetRoute,
-  appRoute.addChildren([dashboardRoute, adminRoute, intelRoute, resourceRoute, profileRoute]),
+  indexRoute, entitiesRoute, entityProfileRoute, capabilityRoute, agentSectionRoute, narrativesRoute, narrativeDetailRoute, alertsRoute, newsletterRoute, loginRoute, registerRoute, resetRoute,
+  appRoute.addChildren([dashboardRoute, adminRoute, intelRoute, leadsRoute, resourceRoute, profileRoute]),
 ]);
 
 export const router = createRouter({
