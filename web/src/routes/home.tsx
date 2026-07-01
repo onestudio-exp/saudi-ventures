@@ -8,7 +8,7 @@ import { SubscribeBar } from "../components/public/SubscribeBar";
 import { RadarPanel, type RadarSignal } from "../components/public/RadarPanel";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { PublicFooter } from "../components/public/PublicFooter";
-import { listAgents, listAlerts, listEntities, listNarratives, AGENT_PERSONAS, type Agent, type Entity, type Narrative } from "../lib/public";
+import { listAgents, listAlerts, listEntities, listNarratives, MODULE_LABEL, type Agent, type Entity, type Narrative } from "../lib/public";
 
 export function Home() {
   const { language } = useT();
@@ -181,13 +181,13 @@ export function Home() {
           </div>
           <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
             {agents.map((a) => {
-              const persona = AGENT_PERSONAS[a.slug];
+              const role = MODULE_LABEL[a.module] ?? a.name;
               return (
                 <Link key={a.slug} to="/agents/$slug" params={{ slug: a.slug }}
                   className="ecard rounded-2xl border border-border p-5" style={{ background: "hsl(var(--card))" }}>
-                  <BadgeAvatar name={persona?.name ?? a.name} size={44} radius={12} />
-                  <div className="font-display mt-3.5 text-base font-semibold">{persona?.name ?? a.name}</div>
-                  <div className="mono mt-0.5 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{a.name}</div>
+                  <BadgeAvatar name={a.name} size={44} radius={12} />
+                  <div className="font-display mt-3.5 text-base font-semibold">{a.name}</div>
+                  <div className="mono mt-0.5 text-[10.5px] uppercase tracking-wide text-muted-foreground/70">{role}</div>
                   {a.tagline && <p className="mt-2.5 text-[12.5px] leading-relaxed text-muted-foreground">{a.tagline}</p>}
                 </Link>
               );

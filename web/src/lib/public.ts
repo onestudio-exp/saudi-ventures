@@ -125,7 +125,17 @@ export interface ChatMessage {
   content: string;
 }
 
-// Persona per agent slug (display side; mirrors the backend persona map).
+// Module -> role label (the small sub-title under the editable agent name).
+export const MODULE_LABEL: Record<string, string> = {
+  news: "News Radar",
+  startups: "Startup Directory",
+  investment: "Investment Intel",
+  funding: "Funding & Deals",
+  sectors: "Sectors & Market",
+};
+
+// Persona per agent slug — the character/voice. The editable display NAME now lives
+// on the agent record itself (controllable from the admin dashboard).
 export const AGENT_PERSONAS: Record<string, { name: string; character: string }> = {
   "news-radar": { name: "Raqib", character: "a sharp, fast-moving news scout who surfaces what just happened in Saudi venture and why it matters" },
   "list-of-startups": { name: "Rowad", character: "an encyclopedic guide to Saudi startups — who they are, what they build, and where they stand" },

@@ -7,7 +7,7 @@ import { LeadForm } from "../components/public/LeadForm";
 import { Markdown } from "../components/public/Markdown";
 import { ChatFab } from "../components/public/ChatFab";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
-import { getAgentBySlug, listNarratives, AGENT_PERSONAS, type Agent, type Narrative } from "../lib/public";
+import { getAgentBySlug, listNarratives, AGENT_PERSONAS, MODULE_LABEL, type Agent, type Narrative } from "../lib/public";
 import { useTranslated, useTranslatedMarkdown } from "../lib/translate";
 
 // Agent module -> lucide component.
@@ -61,14 +61,14 @@ export function AgentSection() {
               <div className="rounded-[18px] border border-border p-8" style={{ background: "linear-gradient(180deg,hsl(var(--card)),hsl(var(--background)))" }}>
                 <div className="flex items-center gap-5">
                   <span className="relative">
-                    <BadgeAvatar name={persona?.name ?? agent.name} size={66} radius={16} />
+                    <BadgeAvatar name={agent.name} size={66} radius={16} />
                     <span className="absolute -bottom-1 -end-1 flex h-6 w-6 items-center justify-center rounded-lg border border-border bg-card text-primary">
                       <Icon className="h-3.5 w-3.5" />
                     </span>
                   </span>
                   <div>
-                    <h1 className="font-display text-3xl">{persona?.name ?? agent.name}</h1>
-                    <div className="kicker mt-1.5">{agent.name}{agent.tagline ? ` · ${agent.tagline}` : ""}</div>
+                    <h1 className="font-display text-3xl">{agent.name}</h1>
+                    <div className="kicker mt-1.5">{MODULE_LABEL[agent.module] ?? agent.name}{agent.tagline ? ` · ${agent.tagline}` : ""}</div>
                   </div>
                 </div>
                 {persona && (
@@ -86,7 +86,7 @@ export function AgentSection() {
 
               {/* what this agent is tracking — its Cortex brief */}
               <div className="mt-6 flex items-center justify-between">
-                <h2 className="font-display text-base font-semibold">{tx(`What ${persona?.name ?? agent.name} is tracking`, `ما يتابعه ${persona?.name ?? agent.name}`)}</h2>
+                <h2 className="font-display text-base font-semibold">{tx(`What ${agent.name} is tracking`, `ما يتابعه ${agent.name}`)}</h2>
                 <span className="mono flex items-center gap-1.5 text-[11px] text-primary">
                   <span data-pulse className="h-1.5 w-1.5 rounded-full bg-primary" /> {tx("LIVE", "مباشر")}
                 </span>
@@ -109,7 +109,7 @@ export function AgentSection() {
             {/* sticky lead CTA → stored Lead (source_type=agent_cta, source_agent=slug) */}
             <aside className="lg:sticky lg:top-24">
               <div className="rounded-[18px] border border-primary/25 p-6" style={{ background: "linear-gradient(160deg,hsl(var(--primary) / 0.1),hsl(var(--background)) 75%)" }}>
-                <BadgeAvatar name={persona?.name ?? agent.name} size={40} radius={11} />
+                <BadgeAvatar name={agent.name} size={40} radius={11} />
                 <h2 className="font-display mt-4 text-lg font-semibold leading-tight">{agent.cta_text}</h2>
                 {agent.cta_subtext && <p className="mt-1.5 text-sm text-muted-foreground">{agent.cta_subtext}</p>}
                 <div className="mt-4">
@@ -124,8 +124,8 @@ export function AgentSection() {
             {/* Floating chat with the agent's persona */}
             <ChatFab
               agent={slug}
-              speaker={persona?.name ?? agent.name}
-              label={persona?.name ?? agent.name}
+              speaker={agent.name}
+              label={agent.name}
               suggestions={[
                 tx("What changed this week?", "ما الذي تغيّر هذا الأسبوع؟"),
                 tx("Who are the key players?", "من هم اللاعبون الرئيسيون؟"),

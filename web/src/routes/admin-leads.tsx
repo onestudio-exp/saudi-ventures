@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { Inbox, Users } from "lucide-react";
 import { useT } from "@togo-framework/ui";
-import { adminList } from "../lib/admin";
+import { adminList, adminUpdate } from "../lib/admin";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
-import { listAgents, AGENT_PERSONAS, type Agent } from "../lib/public";
+import { listAgents, MODULE_LABEL, type Agent } from "../lib/public";
 
 interface Lead {
   id: string;
@@ -40,10 +39,44 @@ export function AdminLeads() {
   const [filter, setFilter] = useState<string>("all");
   const [err, setErr] = useState<string | null>(null);
 
+  // Per-agent local edits (name + CTA copy), saved to /api/agents/:id via PUT.
+  type Draft = { name: string; cta_text: string; cta_subtext: string };
+  const [edits, setEdits] = useState<Record<string, Draft>>({});
+  const [saved, setSaved] = useState<string | null>(null);
+  const [saveErr, setSaveErr] = useState<string | null>(null);
+
   useEffect(() => {
     adminList("leads").then((r) => setLeads(r as Lead[])).catch(() => setErr(tx("Could not load leads.", "تعذّر تحميل العملاء المحتملين.")));
     listAgents().then(setAgents).catch(() => {});
   }, []);
+
+  const draftOf = (a: Agent): Draft => edits[a.slug] ?? { name: a.name, cta_text: a.cta_text, cta_subtext: a.cta_subtext ?? "" };
+  const setDraft = (a: Agent, patch: Partial<Draft>) => setEdits((e) => ({ ...e, [a.slug]: { ...draftOf(a), ...patch } }));
+  async function saveAgent(a: Agent) {
+    const d = draftOf(a);
+    setSaveErr(null);
+    try {
+      // The update endpoint replaces the record, so send the full agent + edits.
+      await adminUpdate("agents", a.id, {
+        name: d.name,
+        slug: a.slug,
+        module: a.module,
+        tagline: a.tagline ?? "",
+        description: a.description ?? "",
+        image_url: a.image_url ?? "",
+        cta_text: d.cta_text,
+        cta_subtext: d.cta_subtext,
+        sort_order: a.sort_order ?? 0,
+        active: a.active,
+      });
+      setAgents((prev) => prev.map((x) => (x.slug === a.slug ? { ...x, ...d } : x)));
+      setEdits((e) => { const n = { ...e }; delete n[a.slug]; return n; });
+      setSaved(a.slug);
+      setTimeout(() => setSaved(null), 1600);
+    } catch {
+      setSaveErr(tx("Save failed. Are you signed in as admin?", "فشل الحفظ. هل أنت مسجّل كمشرف؟"));
+    }
+  }
 
   const counts = useMemo(() => {
     const c = (t: string) => leads.filter((l) => l.source_type === t).length;
@@ -99,10 +132,10 @@ export function AdminLeads() {
               <div className="flex flex-wrap gap-7">
                 {perAgent.map(({ agent, count }) => (
                   <div key={agent.slug} className="flex items-center gap-3">
-                    <BadgeAvatar name={AGENT_PERSONAS[agent.slug]?.name ?? agent.name} size={34} radius={9} />
+                    <BadgeAvatar name={agent.name} size={34} radius={9} />
                     <div>
                       <div className="font-display text-lg font-semibold">{count}</div>
-                      <div className="mono text-[10px] text-muted-foreground/70">{AGENT_PERSONAS[agent.slug]?.name ?? agent.name}</div>
+                      <div className="mono text-[10px] text-muted-foreground/70">{agent.name}</div>
                     </div>
                   </div>
                 ))}
@@ -145,26 +178,46 @@ export function AdminLeads() {
       ) : (
         <div>
           <h1 className="font-display text-3xl">{tx("Agent settings", "إعدادات الوكلاء")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{tx("Each Agent's name and CTA copy. Edit records in the resource admin.", "اسم كل وكيل ونص الدعوة. عدّل السجلات في إدارة الموارد.")}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{tx("Rename each agent and edit its CTA copy. Changes go live on the public site.", "أعد تسمية كل وكيل وحرّر نص دعوته. تظهر التغييرات مباشرةً على الموقع العام.")}</p>
+          {saveErr && <p className="mt-3 text-sm text-destructive">{saveErr}</p>}
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            {agents.map((a) => (
-              <div key={a.slug} className="rounded-[14px] border border-border p-[22px]" style={{ background: "hsl(var(--card))" }}>
-                <div className="flex items-center gap-3.5">
-                  <BadgeAvatar name={AGENT_PERSONAS[a.slug]?.name ?? a.name} size={48} radius={12} />
-                  <div className="flex-1">
-                    <div className="font-display text-[17px] font-semibold">{AGENT_PERSONAS[a.slug]?.name ?? a.name}</div>
-                    <div className="mono text-[10.5px] uppercase text-muted-foreground/70">{a.name}</div>
+            {agents.map((a) => {
+              const d = draftOf(a);
+              const dirty = !!edits[a.slug];
+              const inp = "w-full rounded-[9px] border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/50";
+              return (
+                <div key={a.slug} className="rounded-[14px] border border-border p-[22px]" style={{ background: "hsl(var(--card))" }}>
+                  <div className="flex items-center gap-3.5">
+                    <BadgeAvatar name={d.name} size={48} radius={12} />
+                    <div className="flex-1">
+                      <div className="font-display text-[17px] font-semibold">{d.name}</div>
+                      <div className="mono text-[10.5px] uppercase text-muted-foreground/70">{MODULE_LABEL[a.module] ?? a.module}</div>
+                    </div>
+                    <span className={`mono rounded-full border px-2.5 py-1 text-[10px] ${a.active ? "border-primary/25 bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}>
+                      {a.active ? tx("ACTIVE", "نشط") : tx("OFF", "متوقف")}
+                    </span>
                   </div>
-                  <span className={`mono rounded-full border px-2.5 py-1 text-[10px] ${a.active ? "border-primary/25 bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}>
-                    {a.active ? tx("ACTIVE", "نشط") : tx("OFF", "متوقف")}
-                  </span>
+
+                  <label className="mono mt-4 block text-[10px] uppercase tracking-wide text-muted-foreground/70">{tx("Display name", "الاسم المعروض")}</label>
+                  <input className={`mt-1.5 ${inp}`} value={d.name} onChange={(e) => setDraft(a, { name: e.target.value })} />
+
+                  <label className="mono mt-3 block text-[10px] uppercase tracking-wide text-muted-foreground/70">{tx("CTA headline", "عنوان الدعوة")}</label>
+                  <input className={`mt-1.5 ${inp}`} value={d.cta_text} onChange={(e) => setDraft(a, { cta_text: e.target.value })} />
+
+                  <label className="mono mt-3 block text-[10px] uppercase tracking-wide text-muted-foreground/70">{tx("CTA subtext", "نص الدعوة")}</label>
+                  <textarea className={`mt-1.5 ${inp} resize-none`} rows={2} value={d.cta_subtext} onChange={(e) => setDraft(a, { cta_subtext: e.target.value })} />
+
+                  <div className="mt-4 flex items-center gap-3">
+                    <button onClick={() => saveAgent(a)} disabled={!dirty}
+                      className="rounded-[9px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity disabled:opacity-40">
+                      {tx("Save", "حفظ")}
+                    </button>
+                    {dirty && <button onClick={() => setEdits((e) => { const n = { ...e }; delete n[a.slug]; return n; })} className="text-sm text-muted-foreground hover:text-foreground">{tx("Reset", "استرجاع")}</button>}
+                    {saved === a.slug && <span className="mono text-xs text-primary">{tx("✓ Saved", "✓ حُفظ")}</span>}
+                  </div>
                 </div>
-                <div className="mono mt-4 text-[10px] uppercase tracking-wide text-muted-foreground/70">{tx("CTA headline", "عنوان الدعوة")}</div>
-                <div className="mt-1 text-sm text-foreground">{a.cta_text}</div>
-                {a.cta_subtext && <><div className="mono mt-3 text-[10px] uppercase tracking-wide text-muted-foreground/70">{tx("CTA subtext", "نص الدعوة")}</div><div className="mt-1 text-[13px] text-muted-foreground">{a.cta_subtext}</div></>}
-                <Link to="/admin/$resource" params={{ resource: "agents" }} className="mt-4 inline-flex text-sm text-primary hover:underline">{tx("Edit in resource admin →", "عدّل في إدارة الموارد ←")}</Link>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
