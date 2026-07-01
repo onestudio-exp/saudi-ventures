@@ -91,8 +91,14 @@ func runIngestCycle(ctx context.Context, a *app.App) {
 	}
 }
 
-// runDigestCycle generates a 7-day narrative digest.
+// runDigestCycle generates a 7-day narrative digest. It first clears any prior
+// digest so the cycle refreshes in place instead of accumulating duplicates.
 func runDigestCycle(ctx context.Context, a *app.App) {
+	if a.SQLDB != nil {
+		if _, derr := a.SQLDB.ExecContext(ctx, "DELETE FROM narratives WHERE kind = $1", "digest"); derr != nil {
+			a.Log.Warn("scheduled digest: clear prior failed", "err", derr)
+		}
+	}
 	row, err := GenerateNarrative(ctx, a, 7, "digest", "")
 	switch {
 	case err == ErrCortexDisabled:

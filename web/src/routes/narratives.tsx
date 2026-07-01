@@ -26,6 +26,10 @@ function ago(iso?: string | null): string {
 const sevClass: Record<string, string> = { high: "sev-high", med: "sev-med", medium: "sev-med", low: "sev-low" };
 const sevLabel: Record<string, string> = { high: "HIGH", med: "MED", medium: "MED", low: "LOW" };
 
+// On-scope filter: an article is a Saudi ecosystem signal if it mentions the
+// Kingdom, its cities, or its venture institutions.
+const SAUDI_RE = /saudi|\bk\.?s\.?a\b|riyadh|jeddah|dammam|khobar|neom|\bpif\b|vision 2030|aramco|tadawul|kaust|misa|monsha|sanabil|wa'?ed|\bstv\b|wamda|magnitt|سعودي|السعودية|الرياض|جدة|نيوم|رؤية ?2030|أرامكو/i;
+
 // The Market Radar page (design M7): live signals + synthesized narratives +
 // classified alerts, all from the live Scout → Cortex pipeline.
 export function Narratives() {
@@ -43,12 +47,21 @@ export function Narratives() {
     listAlerts().then((a) => setAlerts(a.filter((x) => !x.acknowledged))).catch(() => {});
   }, []);
 
+  // Keep the radar on-scope: only show signals that mention Saudi Arabia / its
+  // ecosystem. The raw Scout corpus is broad, so this filters out off-topic noise.
+  const signals = articles.filter((a) => SAUDI_RE.test(`${a.title} ${a.summary ?? ""}`)).slice(0, 12);
+  // Dedup narratives: one per kind (the digest cycle can produce repeats).
+  const seenKind = new Set<string>();
+  const uniqNarr = narratives.filter((n) => (seenKind.has(n.kind) ? false : (seenKind.add(n.kind), true))).slice(0, 5);
+  // Keep alerts on-scope too.
+  const alertsF = alerts.filter((a) => SAUDI_RE.test(`${a.title} ${a.summary ?? ""}`)).slice(0, 8);
+
   // Translate the live data to Arabic via Cortex (cached) when the UI is Arabic.
-  const artTitles = useTranslated(articles.map((a) => a.title), ar);
-  const artSums = useTranslated(articles.map((a) => a.summary || a.why_it_matters || ""), ar);
-  const narrTitles = useTranslated(narratives.map((n) => n.title), ar);
-  const narrSnips = useTranslated(narratives.map((n) => n.body_md.replace(/[#*_>-]/g, "").slice(0, 160)), ar);
-  const alertTitles = useTranslated(alerts.map((a) => a.title), ar);
+  const artTitles = useTranslated(signals.map((a) => a.title), ar);
+  const artSums = useTranslated(signals.map((a) => a.summary || a.why_it_matters || ""), ar);
+  const narrTitles = useTranslated(uniqNarr.map((n) => n.title), ar);
+  const narrSnips = useTranslated(uniqNarr.map((n) => n.body_md.replace(/[#*_>-]/g, "").slice(0, 160)), ar);
+  const alertTitles = useTranslated(alertsF.map((a) => a.title), ar);
 
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
@@ -71,12 +84,12 @@ export function Narratives() {
           <div>
             <h2 className="font-display mb-3.5 text-base font-semibold">{tx("Live signals", "إشارات مباشرة")}</h2>
             <div className="flex flex-col gap-2.5">
-              {articles.length === 0 && (
+              {signals.length === 0 && (
                 <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                  {tx("Signals are syncing from Scout. Check back shortly.", "تتم مزامنة الإشارات من سكاوت. عُد قريبًا.")}
+                  {tx("No Saudi-specific signals in the current window yet — the radar is collecting.", "لا توجد إشارات خاصة بالسعودية في النافذة الحالية بعد — الرادار يجمع البيانات.")}
                 </div>
               )}
-              {articles.slice(0, 12).map((a, i) => (
+              {signals.map((a, i) => (
                 <a key={a.id} href={a.url || undefined} target="_blank" rel="noreferrer"
                   className="lrow rounded-[13px] border border-border p-[18px] transition-colors" style={{ background: "hsl(var(--card))" }}>
                   <div className="mb-2 flex items-center gap-2.5">
@@ -98,7 +111,7 @@ export function Narratives() {
             <div>
               <h2 className="font-display mb-3.5 text-base font-semibold">{tx("Synthesized narratives", "روايات مُركّبة")}</h2>
               <div className="flex flex-col gap-3">
-                {narratives.slice(0, 5).map((n, i) => (
+                {uniqNarr.map((n, i) => (
                   <Link key={n.id} to="/narratives/$id" params={{ id: n.id }}
                     className="rounded-[13px] border border-border p-[18px] transition-colors hover:border-primary/40"
                     style={{ background: "linear-gradient(180deg,hsl(var(--card)),hsl(var(--background)))" }}>
@@ -110,7 +123,7 @@ export function Narratives() {
                     <div className="mt-1.5 line-clamp-2 text-[12.5px] leading-relaxed text-muted-foreground">{ar ? narrSnips[i] || "" : n.body_md.replace(/[#*_>-]/g, "").slice(0, 160)}</div>
                   </Link>
                 ))}
-                {narratives.length === 0 && (
+                {uniqNarr.length === 0 && (
                   <div className="rounded-[13px] border border-dashed border-border p-5 text-center text-xs text-muted-foreground">
                     {tx("Narratives generate on the digest cycle.", "تُولَّد الروايات ضمن دورة الملخّص.")}
                   </div>
@@ -121,7 +134,7 @@ export function Narratives() {
             <div>
               <h2 className="font-display mb-3.5 text-base font-semibold">{tx("Classified alerts", "تنبيهات مصنّفة")}</h2>
               <div className="flex flex-col gap-2.5">
-                {alerts.slice(0, 8).map((al, i) => (
+                {alertsF.map((al, i) => (
                   <div key={al.id} className="flex items-start gap-3 rounded-xl border border-border p-[14px_16px]" style={{ background: "hsl(var(--card))" }}>
                     <span className={`mono ${sevClass[al.severity] ?? "sev-low"} mt-0.5 shrink-0 rounded-[5px] border px-2 py-0.5 text-[9.5px]`}>
                       {sevLabel[al.severity] ?? al.severity.toUpperCase()}
@@ -132,7 +145,7 @@ export function Narratives() {
                     </div>
                   </div>
                 ))}
-                {alerts.length === 0 && (
+                {alertsF.length === 0 && (
                   <div className="rounded-xl border border-dashed border-border p-5 text-center text-xs text-muted-foreground">
                     {tx("No open alerts right now.", "لا توجد تنبيهات مفتوحة حاليًا.")}
                   </div>
