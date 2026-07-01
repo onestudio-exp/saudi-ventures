@@ -8,6 +8,7 @@ import { Markdown } from "../components/public/Markdown";
 import { ChatFab } from "../components/public/ChatFab";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { getAgentBySlug, listNarratives, AGENT_PERSONAS, type Agent, type Narrative } from "../lib/public";
+import { useTranslated, useTranslatedMarkdown } from "../lib/translate";
 
 // Agent module -> lucide component.
 const ICONS: Record<string, typeof Layers> = {
@@ -36,6 +37,11 @@ export function AgentSection() {
 
   const Icon = ICONS[agent?.module ?? ""] ?? Sparkles;
   const persona = AGENT_PERSONAS[slug];
+
+  // Translate the agent's description + AI brief to Arabic via Cortex when RTL.
+  const descTr = useTranslated([agent?.description ?? ""], ar && !!agent)[0];
+  const description = ar ? descTr || agent?.description : agent?.description;
+  const briefMd = useTranslatedMarkdown(brief?.body_md, ar && !!brief);
 
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
@@ -70,7 +76,7 @@ export function AgentSection() {
                     “{persona.character}.”
                   </p>
                 )}
-                {agent.description && <p className="mt-3 leading-relaxed text-muted-foreground">{agent.description}</p>}
+                {description && <p className="mt-3 leading-relaxed text-muted-foreground">{description}</p>}
                 <div className="mt-6 flex flex-wrap gap-2.5">
                   {[tx("Cortex-powered", "مدعوم بكورتكس"), tx("AR + EN", "عربي + إنجليزي"), tx("Updated daily", "تحديث يومي")].map((p) => (
                     <span key={p} className="mono rounded-lg border border-border px-3 py-1.5 text-[11px] text-muted-foreground" style={{ background: "hsl(var(--muted))" }}>{p}</span>
@@ -91,7 +97,7 @@ export function AgentSection() {
                     <Sparkles className="h-4 w-4 text-primary" />
                     <span className="kicker">{tx("AI Intelligence Brief", "موجز الذكاء الاصطناعي")}</span>
                   </div>
-                  <div className="mt-3"><Markdown text={brief.body_md} /></div>
+                  <div className="mt-3"><Markdown text={briefMd} /></div>
                 </section>
               ) : (
                 <p className="mt-3 rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">

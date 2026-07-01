@@ -7,6 +7,7 @@ import { LeadForm } from "../components/public/LeadForm";
 import { ChatFab } from "../components/public/ChatFab";
 import { BadgeAvatar } from "../components/public/BadgeAvatar";
 import { getEntityBySlug, listEntities, AGENT_PERSONAS, type Entity } from "../lib/public";
+import { useTranslated } from "../lib/translate";
 
 // Which persona "watches" an entity, by kind — always the news radar plus one specialist.
 function watchers(kind: string): string[] {
@@ -50,6 +51,10 @@ export function EntityProfile() {
   })();
   const label = (k: string) => k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
+  // Translate the entity's description to Arabic via Cortex when RTL.
+  const descTr = useTranslated([entity?.description ?? ""], ar && !!entity)[0];
+  const description = ar ? descTr || entity?.description : entity?.description;
+
   return (
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
       <PublicNav />
@@ -75,7 +80,7 @@ export function EntityProfile() {
                     </span>
                   )}
                 </div>
-                {entity.description && <p className="mt-3 max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">{entity.description}</p>}
+                {description && <p className="mt-3 max-w-[60ch] text-[15px] leading-relaxed text-muted-foreground">{description}</p>}
                 <div className="mt-3.5 flex flex-wrap gap-2">
                   {[entity.kind, entity.sector, entity.headquarters, entity.founded_year ? `${tx("Founded", "تأسست")} ${entity.founded_year}` : null]
                     .filter(Boolean)
@@ -96,7 +101,7 @@ export function EntityProfile() {
                 {entity.description && (
                   <>
                     <h2 className="font-display text-[17px] font-semibold">{tx("About", "نبذة")}</h2>
-                    <p className="mt-3 text-[14.5px] leading-[1.7] text-foreground/85">{entity.description}</p>
+                    <p className="mt-3 text-[14.5px] leading-[1.7] text-foreground/85">{description}</p>
                   </>
                 )}
 
