@@ -11,7 +11,6 @@ import { Narratives } from "./routes/narratives";
 import { NarrativeDetail } from "./routes/narrative-detail";
 import { Alerts } from "./routes/alerts";
 import { Newsletter } from "./routes/newsletter";
-import { Capabilities } from "./routes/capabilities";
 import { Login } from "./routes/login";
 import { Register } from "./routes/register";
 import { Reset } from "./routes/reset";
@@ -45,7 +44,6 @@ const narrativesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/n
 const narrativeDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: "/narratives/$id", component: NarrativeDetail });
 const alertsRoute = createRoute({ getParentRoute: () => rootRoute, path: "/alerts", component: Alerts });
 const newsletterRoute = createRoute({ getParentRoute: () => rootRoute, path: "/newsletter", component: Newsletter });
-const capabilitiesRoute = createRoute({ getParentRoute: () => rootRoute, path: "/capabilities", component: Capabilities });
 const loginRoute = createRoute({ getParentRoute: () => rootRoute, path: "/login", component: Login, beforeLoad: redirectIfAuthed });
 const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: "/register", component: Register, beforeLoad: redirectIfAuthed });
 const resetRoute = createRoute({ getParentRoute: () => rootRoute, path: "/reset", component: Reset });
@@ -73,7 +71,7 @@ const leadsRoute = createRoute({ getParentRoute: () => appRoute, path: "/admin/l
 const adminCapsRoute = createRoute({ getParentRoute: () => appRoute, path: "/admin/capabilities", component: AdminCapabilities });
 
 const routeTree = rootRoute.addChildren([
-  indexRoute, entitiesRoute, entityProfileRoute, capabilityRoute, capabilitiesRoute, agentSectionRoute, narrativesRoute, narrativeDetailRoute, alertsRoute, newsletterRoute, loginRoute, registerRoute, resetRoute,
+  indexRoute, entitiesRoute, entityProfileRoute, capabilityRoute, agentSectionRoute, narrativesRoute, narrativeDetailRoute, alertsRoute, newsletterRoute, loginRoute, registerRoute, resetRoute,
   appRoute.addChildren([dashboardRoute, adminRoute, intelRoute, leadsRoute, adminCapsRoute, resourceRoute, profileRoute]),
 ]);
 

@@ -70,8 +70,8 @@ export function CapabilitySection() {
     <main dir={ar ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
       <PublicNav />
       <div className="mx-auto max-w-5xl px-6 py-10 pb-20">
-        <Link to="/capabilities" className="mono inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
-          <Arrow className="h-3.5 w-3.5 rotate-180" /> {tx("All capabilities", "كل القدرات")}
+        <Link to="/" className="mono inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+          <Arrow className="h-3.5 w-3.5 rotate-180" /> {tx("Home", "الرئيسية")}
         </Link>
 
         {cap === undefined && <p className="mt-8 text-sm text-muted-foreground">{tx("Loading…", "جارٍ التحميل…")}</p>}

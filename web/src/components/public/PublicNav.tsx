@@ -41,10 +41,11 @@ export function PublicNav() {
   }, []);
   const on = (gate?: string[]) => !gate || enabled === null || gate.some((s) => enabled.has(s));
 
+  // Public nav shows DATA sections (each governed behind the scenes by a capability
+  // that admins toggle). Capabilities themselves live only in the admin dashboard.
   const items = ([
     { to: "/", label: tx("Ecosystem", "المنظومة") },
     { to: "/entities", label: tx("Directory", "الدليل"), gate: ["startups", "entity"] },
-    { to: "/capabilities", label: tx("Capabilities", "القدرات") },
     { to: "/narratives", label: tx("Radar", "الرادار"), gate: ["narrative"] },
     { to: "/newsletter", label: tx("Newsletter", "النشرة") },
   ] as { to: string; label: string; gate?: string[] }[]).filter((it) => on(it.gate));
