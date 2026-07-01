@@ -70,8 +70,10 @@ export function EntityProfile() {
   })();
   const label = (k: string) => k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-  // Translate the description + stored brief to Arabic via Cortex when RTL.
-  const [descTr, storedBriefTr] = useTranslated([entity?.description ?? "", storedBrief], ar && !!entity);
+  // Translate the description + stored brief to Arabic via Cortex when RTL. The
+  // brief goes as its own request so it always takes the robust single-text path.
+  const descTr = useTranslated([entity?.description ?? ""], ar && !!entity)[0];
+  const storedBriefTr = useTranslated([storedBrief], ar && !!entity && !!storedBrief)[0];
   const description = ar ? descTr || entity?.description : entity?.description;
   // Prefer the pre-generated brief (translated in AR); else the on-demand one.
   const shownBrief = storedBrief ? (ar ? storedBriefTr || storedBrief : storedBrief) : brief;

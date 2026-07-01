@@ -156,6 +156,26 @@ func normalizeTarget(target string) (code, name string) {
 // of the same length. On any failure (call error, malformed JSON, length
 // mismatch) it falls back to identity (the input texts) rather than erroring.
 func translateBatch(ctx context.Context, client *cortex.Client, langName string, texts []string) []string {
+	// Single text: translate directly (no JSON wrapping). This is far more robust
+	// for long paragraphs with embedded quotes/markdown, which otherwise break the
+	// JSON-array round-trip and fall back to the untranslated original.
+	if len(texts) == 1 {
+		system := "You are a professional translator. Translate the user's text into " + langName +
+			". Preserve names, numbers, URLs, and Markdown formatting. Return ONLY the translation — no preamble, no quotes, no commentary."
+		out, _, err := client.Chat(ctx, []cortex.Message{
+			{Role: "system", Content: system},
+			{Role: "user", Content: texts[0]},
+		})
+		if err != nil {
+			return texts
+		}
+		t := strings.TrimSpace(stripFences(out))
+		if t == "" {
+			return texts
+		}
+		return []string{t}
+	}
+
 	system := "You are a professional translator. Translate each string in the input JSON array into " + langName +
 		". Preserve names, numbers, URLs, and Markdown formatting. Return ONLY a JSON array of translated strings, " +
 		"same length and order, no commentary or code fences."
@@ -174,13 +194,10 @@ func translateBatch(ctx context.Context, client *cortex.Client, langName string,
 	}
 
 	var parsed []string
-	if err := json.Unmarshal([]byte(stripFences(out)), &parsed); err != nil {
-		return texts
+	if err := json.Unmarshal([]byte(stripFences(out)), &parsed); err == nil && len(parsed) == len(texts) {
+		return parsed
 	}
-	if len(parsed) != len(texts) {
-		return texts
-	}
-	return parsed
+	return texts
 }
 
 // stripFences removes surrounding Markdown code fences (```json ... ``` or
