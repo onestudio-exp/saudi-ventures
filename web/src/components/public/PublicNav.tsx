@@ -35,6 +35,7 @@ export function PublicNav() {
   const items: { to: string; label: string }[] = [
     { to: "/", label: tx("Ecosystem", "المنظومة") },
     { to: "/entities", label: tx("Directory", "الدليل") },
+    { to: "/capabilities", label: tx("Capabilities", "القدرات") },
     { to: "/narratives", label: tx("Radar", "الرادار") },
     { to: "/newsletter", label: tx("Newsletter", "النشرة") },
   ];
