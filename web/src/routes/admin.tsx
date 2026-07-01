@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Table2, Inbox, Sparkles } from "lucide-react";
+import { Table2, Inbox, Sparkles, Boxes } from "lucide-react";
 import { PageHeader, Card } from "@togo-framework/ui";
 import { metaResources } from "../lib/admin";
 
@@ -12,7 +12,8 @@ export function AdminHome() {
   return (
     <div className="mx-auto max-w-5xl p-8">
       <PageHeader title="Admin" description={`Manage your resources · ${list.length}`} />
-      <div className="mb-6 grid gap-3 sm:grid-cols-2">
+      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        <Link to="/admin/capabilities"><Card className="p-5 transition hover:border-primary/50"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary"><Boxes className="h-4 w-4" /></span><span><span className="block font-medium">Capabilities</span><span className="block text-xs text-muted-foreground">Toggle capabilities on/off</span></span></div></Card></Link>
         <Link to="/admin/leads"><Card className="p-5 transition hover:border-primary/50"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary"><Inbox className="h-4 w-4" /></span><span><span className="block font-medium">Lead inbox</span><span className="block text-xs text-muted-foreground">Captured leads + agent settings</span></span></div></Card></Link>
         <Link to="/admin/intel"><Card className="p-5 transition hover:border-primary/50"><div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary"><Sparkles className="h-4 w-4" /></span><span><span className="block font-medium">Intelligence</span><span className="block text-xs text-muted-foreground">Run the Scout → Cortex pipeline</span></span></div></Card></Link>
       </div>

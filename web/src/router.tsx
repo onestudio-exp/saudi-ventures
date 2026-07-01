@@ -27,6 +27,7 @@ const AdminResource = lazyRouteComponent(() => import("./routes/admin-resource")
 const Profile = lazyRouteComponent(() => import("./routes/profile"), "Profile");
 const AdminIntel = lazyRouteComponent(() => import("./routes/admin-intel"), "AdminIntel");
 const AdminLeads = lazyRouteComponent(() => import("./routes/admin-leads"), "AdminLeads");
+const AdminCapabilities = lazyRouteComponent(() => import("./routes/admin-capabilities"), "AdminCapabilities");
 
 const rootRoute = createRootRoute({ component: () => (<Providers><Outlet /></Providers>) });
 
@@ -69,10 +70,11 @@ const resourceRoute = createRoute({ getParentRoute: () => appRoute, path: "/admi
 const profileRoute = createRoute({ getParentRoute: () => appRoute, path: "/profile", component: Profile });
 const intelRoute = createRoute({ getParentRoute: () => appRoute, path: "/admin/intel", component: AdminIntel });
 const leadsRoute = createRoute({ getParentRoute: () => appRoute, path: "/admin/leads", component: AdminLeads });
+const adminCapsRoute = createRoute({ getParentRoute: () => appRoute, path: "/admin/capabilities", component: AdminCapabilities });
 
 const routeTree = rootRoute.addChildren([
   indexRoute, entitiesRoute, entityProfileRoute, capabilityRoute, capabilitiesRoute, agentSectionRoute, narrativesRoute, narrativeDetailRoute, alertsRoute, newsletterRoute, loginRoute, registerRoute, resetRoute,
-  appRoute.addChildren([dashboardRoute, adminRoute, intelRoute, leadsRoute, resourceRoute, profileRoute]),
+  appRoute.addChildren([dashboardRoute, adminRoute, intelRoute, leadsRoute, adminCapsRoute, resourceRoute, profileRoute]),
 ]);
 
 export const router = createRouter({

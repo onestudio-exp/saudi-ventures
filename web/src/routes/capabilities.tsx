@@ -29,7 +29,8 @@ export function Capabilities() {
   const [counts, setCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    listCapabilities().then((c) => setCaps(c.sort((a, b) => a.nav_order - b.nav_order))).catch(() => {});
+    // Only enabled capabilities appear on the public site — the admin toggle governs this.
+    listCapabilities().then((c) => setCaps(c.filter((x) => x.enabled).sort((a, b) => a.nav_order - b.nav_order))).catch(() => {});
     // Real record counts per capability domain.
     Promise.all([
       listEntities(2000).then((e) => e.length).catch(() => 0),
