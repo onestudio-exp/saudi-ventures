@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Sun, Moon, Languages } from "lucide-react";
 import { useT } from "@togo-framework/ui";
+import { listCapabilities } from "../../lib/public";
 
 // Apply a theme choice the same way index.html's no-flash script does.
 function applyTheme(theme: "light" | "dark") {
@@ -32,13 +33,21 @@ export function PublicNav() {
     setDark(!dark);
   };
 
-  const items: { to: string; label: string }[] = [
+  // The nav is capability-driven: an item shows only if its governing capability is
+  // enabled (items with no gate always show). Until capabilities load, show all.
+  const [enabled, setEnabled] = useState<Set<string> | null>(null);
+  useEffect(() => {
+    listCapabilities().then((c) => setEnabled(new Set(c.filter((x) => x.enabled).map((x) => x.slug)))).catch(() => setEnabled(null));
+  }, []);
+  const on = (gate?: string[]) => !gate || enabled === null || gate.some((s) => enabled.has(s));
+
+  const items = ([
     { to: "/", label: tx("Ecosystem", "المنظومة") },
-    { to: "/entities", label: tx("Directory", "الدليل") },
+    { to: "/entities", label: tx("Directory", "الدليل"), gate: ["startups", "entity"] },
     { to: "/capabilities", label: tx("Capabilities", "القدرات") },
-    { to: "/narratives", label: tx("Radar", "الرادار") },
+    { to: "/narratives", label: tx("Radar", "الرادار"), gate: ["narrative"] },
     { to: "/newsletter", label: tx("Newsletter", "النشرة") },
-  ];
+  ] as { to: string; label: string; gate?: string[] }[]).filter((it) => on(it.gate));
 
   return (
     <header className="sticky top-0 z-50 border-b border-border" style={{ background: "hsl(var(--background) / 0.82)", backdropFilter: "blur(14px)" }}>

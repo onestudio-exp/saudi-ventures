@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/saudi-ventures/saudi-ventures/internal/app"
+	"github.com/saudi-ventures/saudi-ventures/internal/models"
 )
 
 const (
@@ -69,15 +70,32 @@ func StartScheduler(ctx context.Context, a *app.App) {
 
 // runIngestCycle performs one Saudi-gated Scout ingest followed by an alert scan.
 func runIngestCycle(ctx context.Context, a *app.App) {
-	res, err := IngestScout(ctx, a, IngestOpts{SaudiOnly: true, Limit: 20})
-	if err != nil {
-		a.Log.Warn("scheduled ingest failed", "err", err)
-	} else {
-		a.Log.Info("scheduled ingest ok",
-			"fetched", res.Fetched,
-			"ingested", res.Ingested,
-			"skipped", res.Skipped,
-		)
+	// Per-capability ingest (Sentra-style): every ENABLED capability whose config
+	// carries queries runs its own Scout ingest. This is what makes a capability's
+	// admin config actually drive its data pipeline.
+	ran := 0
+	if caps, err := models.Capabilities(a).Where("enabled", "=", true).Get(ctx); err == nil {
+		for _, c := range caps {
+			if q, _ := capabilityQueries(ctx, a, c.Slug); len(q) == 0 {
+				continue
+			}
+			res, ierr := IngestScout(ctx, a, IngestOpts{Capability: c.Slug, SaudiOnly: true, Limit: 20})
+			if ierr != nil {
+				a.Log.Warn("scheduled ingest failed", "capability", c.Slug, "err", ierr)
+			} else {
+				a.Log.Info("scheduled ingest ok", "capability", c.Slug, "fetched", res.Fetched, "ingested", res.Ingested, "skipped", res.Skipped)
+			}
+			ran++
+		}
+	}
+	// Fallback to the default news-radar ingest if no capability had queries.
+	if ran == 0 {
+		res, err := IngestScout(ctx, a, IngestOpts{SaudiOnly: true, Limit: 20})
+		if err != nil {
+			a.Log.Warn("scheduled ingest failed", "err", err)
+		} else {
+			a.Log.Info("scheduled ingest ok", "fetched", res.Fetched, "ingested", res.Ingested, "skipped", res.Skipped)
+		}
 	}
 
 	created, _, err := ScanAlerts(ctx, a, 10)
